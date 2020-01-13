@@ -6,6 +6,7 @@ class UserdbManagement:
     management_instances_created = 0
 
     def __init__(self):
+
         self.check_number_of_instances()
 
         """
