@@ -1,5 +1,5 @@
 import sqlite3
-
+import re
 
 class EventsDBManager:
 
@@ -102,7 +102,8 @@ class EventsDBManager:
 
         self.controller.execute(sql_command)
         query_result = self.controller.fetchall()
-
+        if len(query_result) == 0:
+            return []
         event = {'event_id': query_result[0][0], 'title': query_result[0][1], 'category': query_result[0][2],
                  'price': query_result[0][3], 'description': query_result[0][4], 'link': query_result[0][5],
                  'telephone': query_result[0][6], 'tags': query_result[0][7], 'address_street': query_result[0][8],
@@ -111,7 +112,41 @@ class EventsDBManager:
                  'facebook': query_result[0][14], 'website': query_result[0][15], 'latitude': query_result[0][16],
                  'longitude': query_result[0][17]}
 
-        return event
+        return [event]
+
+    def return_random_events(self):
+
+        """
+            This function returns in json format the event information based on the event id!
+        """
+
+        sql_command = """
+                        SELECT DISTINCT tags
+                        FROM Events
+                    """
+
+        self.controller.execute(sql_command)
+        query_result = self.controller.fetchall()
+        labels_list = []
+        for i in query_result:
+            list_each = re.split(';',i[0])
+            labels_list += list_each
+        labels_list = set(labels_list)
+        print(labels_list)
+
+        # event = {'event_id': query_result[0][0], 'title': query_result[0][1], 'category': query_result[0][2],
+        #          'price': query_result[0][3], 'description': query_result[0][4], 'link': query_result[0][5],
+        #          'telephone': query_result[0][6], 'tags': query_result[0][7], 'address_street': query_result[0][8],
+        #          'address_city': query_result[0][9], 'address_zipcode': query_result[0][10],
+        #          'date': query_result[0][11], 'date_end': query_result[0][12], 'contact_mail': query_result[0][13],
+        #          'facebook': query_result[0][14], 'website': query_result[0][15], 'latitude': query_result[0][16],
+        #          'longitude': query_result[0][17]}
+        #
+        # return event
+    def return_several_events(self,number_of_events):
+        events = []
+        for i in range(number_of_events):
+            events.append(self.return_event())
 
     def check_database(self):
 
@@ -136,7 +171,9 @@ class EventsDBManager:
 if __name__ == "__main__":
 
     Events = EventsDBManager()
-    event = Events.return_event(98922)
+    event = Events.return_event(9892)# event is in type of dict of an event.
 
     for key in event:
         print(key, event[key])
+    # print(Events.check_database()[:10])
+    Events.return_random_events()

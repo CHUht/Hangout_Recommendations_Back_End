@@ -31,7 +31,7 @@ class UserdbManagement:
 
         """
             In this function we find the last id on the database
-            this is done since we need to assing a new
+            this is done since we need to assign a new
         """
 
         sql_command = """
@@ -40,9 +40,10 @@ class UserdbManagement:
                 """
         self.controller.execute(sql_command)
         all_ids = self.controller.fetchall()
-
+        print('all_ids')
+        print(all_ids)
         if len(all_ids) == 0:
-            self.last_id = 0
+            self.last_id = -1
         else:
             self.last_id = all_ids[-1][0]
 
@@ -139,12 +140,14 @@ class UserdbManagement:
 
 
     def check_database(self):
-
+        # Returns everything in it
         sql_command = """
                     SELECT *
                     FROM Users
                 """
         self.controller.execute(sql_command)
+
+        print('checke_database')
 
         for col in self.controller.fetchall():
             print(col)
@@ -177,4 +180,13 @@ if __name__ == "__main__":
 
     UserDB = UserdbManagement()
     UserDB.check_database()
-
+    UserDB.create_new_user('Li', 'nopw', 123, 12)
+    UserDB.create_new_user('Fafa', '123', 11, 22)
+    print('usernames')
+    print(UserDB.return_usernames())
+    print('fafa_re')
+    print(UserDB.return_user_data("Fafa"))
+    print('fafa_123_re')
+    print(UserDB.user_authentication("Fafa","123"))
+    print('all_list')
+    print(UserDB.check_database())

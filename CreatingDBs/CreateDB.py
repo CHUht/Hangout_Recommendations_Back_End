@@ -3,7 +3,7 @@ import sqlite3
 class CreatDataBase:
     def __init__(self, table_name):
         self.table_name = table_name
-        self._connection = sqlite3.connect('../' + table_name + '.db')
+        self._connection = sqlite3.connect('../Database.db')
 
         # cursor
         self._cursor = self._connection.cursor()
@@ -57,7 +57,7 @@ if __name__ == "__main__":
                 'pword': 'VARCHAR(50)',
                 'latitude': 'FLOAT(8)',
                 'longitude': 'FLOAT(8)'}
-    databases.append(('Userdatabase',att2))
+    databases.append(('Users',att2))
 
     att3 = {'user_id': 'INTEGER',
                 'event_id': 'INTEGER',
@@ -77,3 +77,4 @@ if __name__ == "__main__":
     for i in range(len(databases)):
         cdb = CreatDataBase(databases[i][0])
         cdb.create_table(databases[i][1])
+
