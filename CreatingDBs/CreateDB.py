@@ -29,8 +29,7 @@ class CreatDataBase:
 
         self._connection.close()
 
-
-if __name__ == "__main__":
+def create_databases():
     databases = []
     att1 = {'event_id': 'INTEGER PRIMARY KEY',
                 'title': 'VARCHAR(50)',
@@ -48,6 +47,7 @@ if __name__ == "__main__":
                 'contact_mail': 'VARCHAR(50)',
                 'facebook': 'VARCHAR(50)',
                 'website': 'VARCHAR(50)',
+                'cover_url':'VARCHAR(50)',
                 'latitude': 'FLOAT(8)',
                 'longitude': 'FLOAT(8)'}
     databases.append(('Events',att1))
@@ -70,11 +70,21 @@ if __name__ == "__main__":
     databases.append(('UserRecommendation',att4))
 
     att5 = {'user_id': 'INTEGER',
-                'event_id': 'INTEGER',}
+                'event_id': 'INTEGER'}
     databases.append(('UserLike',att5))
+
+    att6 = {'event_id': 'INTEGER',
+                'catagory_id': 'INTEGER'}
+    databases.append(('Event_Catagory',att6))
+
+    att7 = {'catagory_id': 'INTEGER',
+            'catagoty_name':'VARCHAR(50)'}
+    databases.append(('Catagoty',att7))
 
     # print(databases)
     for i in range(len(databases)):
         cdb = CreatDataBase(databases[i][0])
         cdb.create_table(databases[i][1])
 
+if __name__ == "__main__":
+    create_databases()

@@ -17,6 +17,8 @@ class EventsDBManager:
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
         self.events_ids = self.retrieve_event_ids()
+        self.tags = None
+        self.categories = None
 
     def check_number_of_instances(self):
 
@@ -32,7 +34,7 @@ class EventsDBManager:
     def add_event(self, event_id, title, category, price, description,
                   link, telephone, tags, address_street, address_city,
                   address_zipcode, date, date_end, contact_mail, facebook, website,
-                  latitude, longitude):
+                  cover_url, latitude, longitude):
 
         """
             This function adds a event to the event database
@@ -42,16 +44,16 @@ class EventsDBManager:
                     INSERT INTO Events (event_id, title, category, price, description, 
                   link, telephone, tags, address_street, address_city, 
                   address_zipcode, date, date_end, contact_mail, facebook, website,
-                  latitude, longitude)
+                  cover_url, latitude, longitude)
                     VALUES( ? , ?, ?, ?, ?, 
                   ? , ?, ?, ?, ?, 
-                  ?, ?, ?, ?,
-                  ?, ?, ?, ?);
+                  ?, ?, ?, ?, ?, ?,
+                  ?, ?, ?);
                 """
         values = (event_id, title, category, price, description,
                   link, telephone, tags, address_street, address_city,
                   address_zipcode, date, date_end, contact_mail, facebook, website,
-                  latitude, longitude)
+                  cover_url, latitude, longitude)
 
         self.controller.execute(sql_command, values)
         self.connection.commit()
@@ -109,19 +111,55 @@ class EventsDBManager:
                  'telephone': query_result[0][6], 'tags': query_result[0][7], 'address_street': query_result[0][8],
                  'address_city': query_result[0][9], 'address_zipcode': query_result[0][10],
                  'date': query_result[0][11], 'date_end': query_result[0][12], 'contact_mail': query_result[0][13],
-                 'facebook': query_result[0][14], 'website': query_result[0][15], 'latitude': query_result[0][16],
-                 'longitude': query_result[0][17]}
+                 'facebook': query_result[0][14], 'website': query_result[0][15], 'cover_url': query_result[0][16],
+                 'latitude': query_result[0][17], 'longitude': query_result[0][18]}
 
         return [event]
 
-    def return_random_events(self):
 
+    def get_catagories(self):
         """
-            This function returns in json format the event information based on the event id!
+            This function returns a catagory statistics
+        """
+        sql_command = """
+                        SELECT category
+                        FROM Events
+                    """
+
+        self.controller.execute(sql_command)
+        query_result = self.controller.fetchall()
+        labels_list_large = []
+        labels_list_small = []
+        for i in query_result:
+            match = re.match(r'(.*) -> (.*)',i[0])
+            list_each_large = match.group(1)
+            list_each_small = match.group(2)
+            labels_list_large.append(list_each_large)
+            labels_list_small.append(list_each_small)
+        category_labels_large = {}
+        category_labels_small = {}
+        for i in labels_list_large:
+            category_labels_large[i] = category_labels_large.get(i,0) + 1
+        for i in labels_list_small:
+            category_labels_small[i] = category_labels_small.get(i,0) + 1
+
+        self.categoties_large = category_labels_large
+        self.categoties_small = category_labels_small
+        print('large categories:---------------------')
+        for key,value in category_labels_large.items():
+            print(key,value)
+
+        print('small categories:---------------------')
+        for key,value in category_labels_small.items():
+            print(key,value)
+
+    def get_tags(self):
+        """
+            This function returns a random event according totags
         """
 
         sql_command = """
-                        SELECT DISTINCT tags
+                        SELECT tags
                         FROM Events
                     """
 
@@ -131,8 +169,13 @@ class EventsDBManager:
         for i in query_result:
             list_each = re.split(';',i[0])
             labels_list += list_each
-        labels_list = set(labels_list)
-        print(labels_list)
+        number_labels = {}
+        for i in labels_list:
+            number_labels[i] = number_labels.get(i,0) + 1
+        self.tags = number_labels
+        for key,value in self.tags.items():
+            print(key,value)
+        return number_labels
 
         # event = {'event_id': query_result[0][0], 'title': query_result[0][1], 'category': query_result[0][2],
         #          'price': query_result[0][3], 'description': query_result[0][4], 'link': query_result[0][5],
@@ -143,10 +186,40 @@ class EventsDBManager:
         #          'longitude': query_result[0][17]}
         #
         # return event
+
     def return_several_events(self,number_of_events):
         events = []
         for i in range(number_of_events):
             events.append(self.return_event())
+
+    def delete_Event_table(self):
+        """
+            Created for debuging
+            Deletes the data in the user table!
+        """
+
+        sql_command = """
+                        DELETE FROM Events;
+                    """
+        self.controller.execute(sql_command)
+        self.connection.commit()
+
+        sql_command = """
+                        VACUUM;
+                    """
+        self.controller.execute(sql_command)
+        self.connection.commit()
+
+    def drop_table(self):
+        """
+            Created for debuging
+            Drops the table!
+        """
+
+        sql_command = """
+                    DROP TABLE Events;
+                """
+        self.connection.execute(sql_command)
 
     def check_database(self):
 
@@ -161,19 +234,25 @@ class EventsDBManager:
                 """
         self.controller.execute(sql_command)
 
-        for col in self.controller.fetchall():
-            print("This row")
-            for e in col:
-                print(e)
-            print()
+        # for col in self.controller.fetchall():
+        #     print("This row")
+        #     for e in col:
+        #         print(e)
+        #     print()
+        return self.controller.fetchall()
 
 
 if __name__ == "__main__":
 
     Events = EventsDBManager()
-    event = Events.return_event(9892)# event is in type of dict of an event.
+    event = Events.return_event(1)# event is in type of dict of an event.
 
-    for key in event:
-        print(key, event[key])
-    # print(Events.check_database()[:10])
-    Events.return_random_events()
+    # for key in event:
+    #     print(key, event[key])
+    # print(Events.check_database()[:2])
+    # Events.return_random_events()
+    # tags = Events.get_tags()
+    cata = Events.get_catagories()
+    # Events.delete_Event_table()
+    # Events.drop_table()
+    # print(Events.check_database())

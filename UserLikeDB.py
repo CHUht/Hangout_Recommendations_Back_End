@@ -120,6 +120,24 @@ class UserLike:
         for col in self.controller.fetchall():
             print(col)
 
+    def delete_userlike_table(self):
+        """
+            Created for debuging
+            Deletes the data in the user ratings!
+        """
+
+        sql_command = """
+                        DELETE FROM UserLike;
+                    """
+        self.controller.execute(sql_command)
+        self.connection.commit()
+
+        sql_command = """
+                        VACUUM;
+                    """
+        self.controller.execute(sql_command)
+        self.connection.commit()
+
 
 if __name__ == "__main__":
 

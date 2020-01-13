@@ -105,6 +105,12 @@ class RecomendationDBManagement:
         self.controller.execute(sql_command)
         self.connection.commit()
 
+        sql_command = """
+                        VACUUM;
+                    """
+        self.controller.execute(sql_command)
+        self.connection.commit()
+
 if __name__ == "__main__":
 
     pass

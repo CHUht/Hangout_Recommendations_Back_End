@@ -6,7 +6,6 @@ class UserdbManagement:
     management_instances_created = 0
 
     def __init__(self):
-
         self.check_number_of_instances()
 
         """
@@ -164,6 +163,12 @@ class UserdbManagement:
         self.controller.execute(sql_command)
         self.connection.commit()
 
+        sql_command = """
+                        VACUUM;
+                    """
+        self.controller.execute(sql_command)
+        self.connection.commit()
+
     def drop_table(self):
         """
             Created for debuging
@@ -171,13 +176,12 @@ class UserdbManagement:
         """
 
         sql_command = """
-                    DROP TABLE Users;
+                    DROP TABLE Userdatabase;
                 """
         self.connection.execute(sql_command)
 
 
 if __name__ == "__main__":
-
     UserDB = UserdbManagement()
     UserDB.check_database()
     UserDB.create_new_user('Li', 'nopw', 123, 12)
