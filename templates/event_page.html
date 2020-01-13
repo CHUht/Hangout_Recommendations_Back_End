@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<ul>
+    {% if data.title != 'NULL' %}
+        <li>Name: {{ data.title }}</li>
+    {% endif %}
+    {% if data.date != 'NULL' %}
+        <li>Date: {{ data.date }}</li>
+    {% endif %}
+    {% if data.description != 'NULL' %}
+        <li>Description: {{ data.description }}</li>
+    {% endif %}
+    {% if data.category != 'NULL' %}
+        <li>Category: {{ data.category }}</li>
+    {% endif %}
+    {% if data.price != 'NULL' %}
+        <li>Price: {{ data.price }}</li>
+    {% endif %}
+    {% if data.link != 'NULL' %}
+        <li>Tickets: {{ data.link }}</li>
+    {% endif %}
+    {% if data.telephone != 'NULL' %}
+        <li>Number: {{ data.telephone }}</li>
+    {% endif %}
+    {% if data.address_street != 'NULL' %}
+        <li>Address Street: {{ data.address_street }}</li>
+    {% endif %}
+    {% if data.address_city != 'NULL' %}
+        <li>City : {{ data.address_city }}</li>
+    {% endif %}
+    {% if data.contact_mail != 'NULL' %}
+        <li>Contact Mail : {{ data.contact_mail }}</li>
+    {% endif %}
+    {% if data.facebook != 'NULL' %}
+        <li>Facebook : {{ data.facebook }}</li>
+    {% endif %}
+    {% if data.website != 'NULL' %}
+        <li>Website : {{ data.website }}</li>
+    {% endif %}
+</ul>
+
+</body>
+</html>

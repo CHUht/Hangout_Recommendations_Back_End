@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript"
+        src="/static/java.js" ></script>
+</head>
+<body>
+
+    <form action="/log_in" method="post">
+        <label for="uname"><b>Username</b></label>
+        <input id="uname" type="text" placeholder="Enter Username" name="uname" required>
+
+        <br>
+
+        <label for="psw"><b>Password</b></label>
+        <input id="psw" type="password" placeholder="Enter Password" name="psw" required>
+
+        <br>
+
+        <button type="submit" onclick="save_user_and_pass()" >Login</button>
+    </form>
+    <a> <font color="red">Authentication Failed <br> </font></a>
+
+    <span class="psw">Forgot <a href="#">password?</a></span>
+
+
+
+</body>
+</html>
