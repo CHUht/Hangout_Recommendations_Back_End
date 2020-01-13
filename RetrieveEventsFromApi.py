@@ -32,6 +32,7 @@ def get_data_from_API_with_head(url):
         data_decode = f.read().decode('utf-8')
         data_decode = json.loads(data_decode)
         #print(type(data_decode), data_decode)
+    print('data_gained')
     return data_decode
 
 
@@ -75,6 +76,7 @@ def data_clean(raw_data):
                              cleaned_event['address_city'], cleaned_event['address_zipcode'], cleaned_event['date'],
                              cleaned_event['date_end'], cleaned_event['contact_mail'], cleaned_event['facebook'],
                              cleaned_event['website'], cleaned_event['latitude'], cleaned_event['longitude'])
+        print('cleaning')
 
 
 
