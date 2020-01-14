@@ -1,5 +1,6 @@
 import sqlite3
 import re
+from random import choice
 
 class EventsDBManager:
 
@@ -17,8 +18,6 @@ class EventsDBManager:
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
         self.events_ids = self.retrieve_event_ids()
-        self.tags = None
-        self.categories = None
 
     def check_number_of_instances(self):
 
@@ -116,6 +115,68 @@ class EventsDBManager:
 
         return [event]
 
+    def return_ten_diff_events(self): # return 10 different events, 2 events for each large category
+        events_id = []
+        cates = self.get_catagories() # dict. key: large categories, value: number of it
+
+        sql_command = """
+                        SELECT event_id, category
+                        FROM Events
+                    """
+
+        self.controller.execute(sql_command)
+        query_result = self.controller.fetchall()
+        # print(query_result)
+        cleaned_result = []
+        for id,cate in query_result:
+            match = re.match(r'(.*) -> (.*)',cate)
+            large_cate = match.group(1)
+            cleaned_result.append((id,large_cate))
+        # print(cleaned_result)
+        need = {}
+        for cate in cates.keys():
+            need[cate] = 2# to generate list of number of needed events
+        # print(self.get_catagories())
+        all_ids = self.all_id_of_events()
+        while(len(events_id) < 10):
+            rand_id = choice(all_ids)
+            rand_id_cate = self.get_categoty(rand_id)
+            if need[rand_id_cate] > 0:
+                need[rand_id_cate] -= 1
+                # events_id.append((rand_id,rand_id_cate)r)
+                events_id.append(rand_id)
+        events = []
+        for i in events_id:
+            events += self.return_event(i)
+        return events
+
+    def number_of_events(self):
+        sql_command = """
+                        SELECT COUNT(DISTINCT event_id)
+                        FROM Events;
+                    """
+
+        self.controller.execute(sql_command)
+        query_result = self.controller.fetchall()[0][0]
+        # print('number of events:')
+        # print(query_result)
+        return query_result
+
+    def all_id_of_events(self): # return a list of sorted ids by increase
+        sql_command = """
+                        SELECT DISTINCT event_id
+                        FROM Events;
+                    """
+
+        self.controller.execute(sql_command)
+        query_result = self.controller.fetchall()
+        query_result = sorted(query_result)
+        for i in range(len(query_result)):
+            query_result[i] = query_result[i][0]
+        # print('all ids:')
+        # print(query_result)
+        return query_result
+
 
     def get_catagories(self):
         """
@@ -143,15 +204,15 @@ class EventsDBManager:
         for i in labels_list_small:
             category_labels_small[i] = category_labels_small.get(i,0) + 1
 
-        self.categoties_large = category_labels_large
-        self.categoties_small = category_labels_small
-        print('large categories:---------------------')
-        for key,value in category_labels_large.items():
-            print(key,value)
+        # print('large categories:---------------------')
+        # for key,value in category_labels_large.items():
+        #     print(key,value)
+        #
+        # print('small categories:---------------------')
+        # for key,value in category_labels_small.items():
+        #     print(key,value)
 
-        print('small categories:---------------------')
-        for key,value in category_labels_small.items():
-            print(key,value)
+        return category_labels_large
 
     def get_tags(self):
         """
@@ -172,9 +233,8 @@ class EventsDBManager:
         number_labels = {}
         for i in labels_list:
             number_labels[i] = number_labels.get(i,0) + 1
-        self.tags = number_labels
-        for key,value in self.tags.items():
-            print(key,value)
+        # for key,value in number_labels.items():
+        #     print(key,value)
         return number_labels
 
         # event = {'event_id': query_result[0][0], 'title': query_result[0][1], 'category': query_result[0][2],
@@ -187,10 +247,18 @@ class EventsDBManager:
         #
         # return event
 
-    def return_several_events(self,number_of_events):
-        events = []
-        for i in range(number_of_events):
-            events.append(self.return_event())
+    def get_categoty(self,id):
+        sql_command = """
+                        SELECT category
+                        FROM Events
+                        WHERE event_id = {0}
+                    """.format(id)
+
+        self.controller.execute(sql_command)
+        query_result = self.controller.fetchall()
+        match = re.match(r'(.*) -> (.*)',query_result[0][0])
+        large_category = match.group(1)
+        return large_category
 
     def delete_Event_table(self):
         """
@@ -252,7 +320,12 @@ if __name__ == "__main__":
     # print(Events.check_database()[:2])
     # Events.return_random_events()
     # tags = Events.get_tags()
-    cata = Events.get_catagories()
+    # cata = Events.get_catagories()
     # Events.delete_Event_table()
     # Events.drop_table()
     # print(Events.check_database())
+    # Events.return_ten_diff_events()
+    # Events.number_of_events()
+    # Events.all_id_of_events()
+    # print(Events.get_categoty(2270))
+    print(Events.return_ten_diff_events())
