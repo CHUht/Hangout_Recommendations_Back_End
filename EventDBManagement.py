@@ -1,7 +1,9 @@
 import sqlite3
 import re
 from random import choice
-import time
+from time import *
+import datetime
+from ToolFunctions import jour_semaine
 
 class EventsDBManager:
 
@@ -172,9 +174,43 @@ class EventsDBManager:
 
         self.controller.execute(sql_command)
         query_result = self.controller.fetchall()[0]
-        now = time.strftime("%Y-%m-%dT%H:%M:%S+00:00", time.localtime())
+        now = strftime("%Y-%m-%dT%H:%M:%S", localtime())
         print(query_result)
-        period = re.findall(,query_result[1],re.I)
+        for ev in query_result:
+            pattern = re.compile('(20.*?)_(20.*?);')
+            occurrences = re.findall(pattern, query_result[1])
+            occurrences_cleaned = []
+            for i in range(len(occurrences)):
+                period = []
+                for j in range(2):
+                    splited = re.match('(.*?)T(.*?):(.*?):(.*?)\+(.*):00',occurrences[i][j])
+                    date_start = splited.group(1)
+                    hour = splited.group(2)
+                    minute = splited.group(3)
+                    second = splited.group(4)
+                    diff = splited.group(5)
+                    hour = str(int(hour) - int(diff))
+                    time = (date_start+'T'+hour+':'+ minute+':'+second)
+                    period.append(time)
+                occurrences_cleaned.append(period)
+        # print(occurrences_cleaned)
+        # print(now)
+        nearest = None
+        for period in occurrences_cleaned:
+            if period[0] > now:
+                nearest = period[0]
+                break
+
+        if nearest != None:
+            whatday= datetime.datetime.strptime(nearest,'%Y-%m-%dT%H:%M:%S').strftime("%w")
+            whatday =jour_semaine[whatday]
+            nearest += (' '+ whatday)
+        else:
+            nearest = "ce n'est pas no plus accesible"
+        print(nearest)
+        event_to_return = self.return_event(query_result[0])
+        event_to_return['nearest']:nearest
+        return event_to_return
 
     def number_of_events(self):
         """
@@ -340,5 +376,5 @@ if __name__ == "__main__":
     # Events.all_ids_of_events()
     # print(Events.get_large_categoty(2270))
     # print(Events.return_several_diff_events())
-    # Events.get_nearest_available(2270)
-    print(Events.return_events_by_category(2))
+    Events.get_nearest_available(2270)
+    # print(Events.return_events_by_category(2))
