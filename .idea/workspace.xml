@@ -2,16 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="eed1378b-357b-46ae-937f-cb40a472ff9f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ToolFunctions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CreatingDBs/CreateDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/CreatingDBs/CreateDB.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Database.db" beforeDir="false" afterPath="$PROJECT_DIR$/Database.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/EventDBManagement.py" beforeDir="false" afterPath="$PROJECT_DIR$/EventDBManagement.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RecomendationDBManagement.py" beforeDir="false" afterPath="$PROJECT_DIR$/RecomendationDBManagement.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RetrieveEventsFromApi.py" beforeDir="false" afterPath="$PROJECT_DIR$/RetrieveEventsFromApi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserLikeDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/UserLikeDB.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserRatingDb.py" beforeDir="false" afterPath="$PROJECT_DIR$/UserRatingDb.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserdbManagement.py" beforeDir="false" afterPath="$PROJECT_DIR$/UserdbManagement.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main_run.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_run.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -22,59 +18,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main_run.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="95">
-              <caret line="5" selection-start-line="5" selection-end-line="5" />
-              <folding>
-                <element signature="e#0#34#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/UserLikeDB.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="320">
-              <caret line="122" column="23" selection-start-line="122" selection-start-column="23" selection-end-line="122" selection-end-column="23" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/RetrieveEventsFromApi.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="133">
-              <caret line="52" selection-start-line="52" selection-end-line="59" selection-end-column="66" />
-              <folding>
-                <element signature="e#0#26#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/EventDBManagement.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="312">
-              <caret line="155" column="23" lean-forward="true" selection-start-line="155" selection-start-column="23" selection-end-line="155" selection-end-column="23" />
+            <state relative-caret-position="251">
+              <caret line="204" lean-forward="true" selection-start-line="204" selection-end-line="204" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Database.db">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-999">
-              <caret line="5700" column="21" lean-forward="true" selection-start-line="5700" selection-start-column="21" selection-end-line="5700" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -82,17 +33,29 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/CreatingDBs/CreateDB.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="212">
-              <caret line="39" column="43" selection-start-line="39" selection-start-column="43" selection-end-line="39" selection-end-column="43" />
+            <state relative-caret-position="-532">
+              <caret line="5" column="60" selection-start-line="5" selection-start-column="60" selection-end-line="5" selection-end-column="60" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/RecomendationDBManagement.py">
+        <entry file="file://$PROJECT_DIR$/ToolFunctions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1843">
-              <caret line="97" column="32" selection-start-line="97" selection-start-column="32" selection-end-line="97" selection-end-column="32" />
+            <state relative-caret-position="95">
+              <caret line="5" selection-start-line="5" selection-end-line="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="190">
+              <caret line="10" selection-start-line="10" selection-end-line="10" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -100,17 +63,32 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/UserdbManagement.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="57">
-              <caret line="171" selection-start-line="171" selection-end-line="180" selection-end-column="44" />
+            <state relative-caret-position="1273">
+              <caret line="131" column="39" selection-start-line="131" selection-start-column="39" selection-end-line="131" selection-end-column="39" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/UserRatingDb.py">
+        <entry file="file://$PROJECT_DIR$/RetrieveEventsFromApi.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="152">
-              <caret line="146" selection-start-line="146" selection-end-line="163" />
+            <state relative-caret-position="-1539">
+              <caret line="9" column="44" lean-forward="true" selection-start-line="9" selection-start-column="44" selection-end-line="9" selection-end-column="44" />
+              <folding>
+                <element signature="e#0#26#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main_run.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="133">
+              <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+              <folding>
+                <element signature="e#0#34#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -124,28 +102,41 @@
       </list>
     </option>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>print</find>
+    </findStrings>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="zhihaoli" />
+      </map>
+    </option>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Events.db" />
         <option value="$PROJECT_DIR$/Database.db" />
-        <option value="$PROJECT_DIR$/main_run.py" />
         <option value="$PROJECT_DIR$/RecomendationDBManagement.py" />
-        <option value="$PROJECT_DIR$/UserdbManagement.py" />
         <option value="$PROJECT_DIR$/UserRatingDb.py" />
         <option value="$PROJECT_DIR$/UserLikeDB.py" />
-        <option value="$PROJECT_DIR$/CreatingDBs/CreateDB.py" />
+        <option value="$PROJECT_DIR$/EventsStatistics.py" />
+        <option value="$PROJECT_DIR$/UserdbManagement.py" />
+        <option value="$PROJECT_DIR$/ToolFunctions.py" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.py" />
         <option value="$PROJECT_DIR$/RetrieveEventsFromApi.py" />
+        <option value="$PROJECT_DIR$/CreatingDBs/CreateDB.py" />
+        <option value="$PROJECT_DIR$/main_run.py" />
         <option value="$PROJECT_DIR$/EventDBManagement.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="837" />
-    <option name="y" value="22" />
+    <option name="x" value="772" />
+    <option name="y" value="27" />
     <option name="width" value="1078" />
     <option name="height" value="1040" />
   </component>
@@ -206,7 +197,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.EventDBManagement">
+  <component name="RunManager" selected="Python.scratch">
     <configuration name="CreateDB" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Hangout_Recommendations" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -270,7 +261,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="UserdbManagement" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="main_run" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Hangout_Recommendations" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -282,7 +273,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/UserdbManagement.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main_run.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -291,7 +282,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="scratch_8" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="scratch" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Hangout_Recommendations" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -303,7 +294,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_8.py" />
+      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -314,11 +305,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.scratch" />
         <item itemvalue="Python.EventDBManagement" />
         <item itemvalue="Python.RetrieveEventsFromApi" />
         <item itemvalue="Python.CreateDB" />
-        <item itemvalue="Python.scratch_8" />
-        <item itemvalue="Python.UserdbManagement" />
+        <item itemvalue="Python.main_run" />
       </list>
     </recent_temporary>
   </component>
@@ -327,17 +318,18 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1354029" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1354029" />
       <window_info id="Structure" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="0" visible="true" weight="0.32833788" />
+      <window_info anchor="bottom" id="Terminal" order="0" weight="0.32833788" />
       <window_info anchor="bottom" id="Event Log" order="1" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="2" />
       <window_info anchor="bottom" id="Python Console" order="3" weight="0.32833788" />
       <window_info anchor="bottom" id="Educational.CheckDetails" order="4" />
       <window_info anchor="bottom" id="Message" order="5" />
-      <window_info anchor="bottom" id="Find" order="6" weight="0.32833788" />
-      <window_info anchor="bottom" id="Run" order="7" weight="0.50272477" />
+      <window_info anchor="bottom" id="Find" order="6" weight="0.32561308" />
+      <window_info active="true" anchor="bottom" id="Run" order="7" visible="true" weight="0.45640326" />
       <window_info anchor="bottom" id="Debug" order="8" weight="0.39918256" />
       <window_info anchor="bottom" id="Cvs" order="9" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="10" weight="0.4" />
@@ -347,7 +339,7 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
     <layout-to-restore>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1354029" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24818403" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="0" weight="0.32833788" />
       <window_info anchor="bottom" id="Event Log" order="1" side_tool="true" />
@@ -355,8 +347,8 @@
       <window_info anchor="bottom" id="Python Console" order="3" weight="0.32833788" />
       <window_info anchor="bottom" id="Educational.CheckDetails" order="4" />
       <window_info anchor="bottom" id="Message" order="5" />
-      <window_info anchor="bottom" id="Find" order="6" weight="0.32833788" />
-      <window_info anchor="bottom" id="Run" order="7" visible="true" weight="0.32833788" />
+      <window_info anchor="bottom" id="Find" order="6" weight="0.32692307" />
+      <window_info active="true" anchor="bottom" id="Run" order="7" visible="true" weight="0.46016484" />
       <window_info anchor="bottom" id="Debug" order="8" weight="0.39918256" />
       <window_info anchor="bottom" id="Cvs" order="9" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="10" weight="0.4" />
@@ -368,7 +360,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="123" />
-    <option name="LAST_COMMIT_MESSAGE" value="123" />
+    <MESSAGE value="456" />
+    <MESSAGE value="return_ten_diff_events&#10;delete Events.db" />
+    <option name="LAST_COMMIT_MESSAGE" value="return_ten_diff_events&#10;delete Events.db" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/CreatingDBs/SecretKeyGeneration.py">
@@ -393,23 +387,6 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/Userdatabase.db" />
-    <entry file="file://$PROJECT_DIR$/Events.db">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="6122" column="566" selection-start-line="6122" selection-start-column="566" selection-end-line="6122" selection-end-column="566" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main_run.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="5" selection-start-line="5" selection-end-line="5" />
-          <folding>
-            <element signature="e#0#34#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/UserTable.db">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -419,14 +396,7 @@
     <entry file="file://$PROJECT_DIR$/UserRatingDb.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="152">
-          <caret line="146" selection-start-line="146" selection-end-line="163" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/UserdbManagement.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="171" selection-start-line="171" selection-end-line="180" selection-end-column="44" />
+          <caret line="146" selection-start-line="146" selection-end-line="146" />
         </state>
       </provider>
     </entry>
@@ -444,20 +414,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Database.db">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-999">
-          <caret line="5700" column="21" lean-forward="true" selection-start-line="5700" selection-start-column="21" selection-end-line="5700" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CreatingDBs/CreateDB.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="212">
-          <caret line="39" column="43" selection-start-line="39" selection-start-column="43" selection-end-line="39" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/UserLikeDB.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="320">
@@ -468,20 +424,89 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RetrieveEventsFromApi.py">
+    <entry file="file://$PROJECT_DIR$/Events.db">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="6107" column="438" lean-forward="true" selection-start-line="6107" selection-start-column="438" selection-end-line="6107" selection-end-column="438" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Anaconda3/Lib/re.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="123">
+          <caret line="172" selection-start-line="172" selection-end-line="172" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EventsStatistics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19">
+          <caret line="1" column="28" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ToolFunctions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="95">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CreatingDBs/CreateDB.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-532">
+          <caret line="5" column="60" selection-start-line="5" selection-start-column="60" selection-end-line="5" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main_run.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="133">
-          <caret line="52" selection-start-line="52" selection-end-line="59" selection-end-column="66" />
+          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+          <folding>
+            <element signature="e#0#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database.db">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="223">
+          <caret line="6238" column="34" lean-forward="true" selection-start-line="6238" selection-start-column="34" selection-end-line="6238" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RetrieveEventsFromApi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1539">
+          <caret line="9" column="44" lean-forward="true" selection-start-line="9" selection-start-column="44" selection-end-line="9" selection-end-column="44" />
           <folding>
             <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/UserdbManagement.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1273">
+          <caret line="131" column="39" selection-start-line="131" selection-start-column="39" selection-end-line="131" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/EventDBManagement.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="155" column="23" lean-forward="true" selection-start-line="155" selection-start-column="23" selection-end-line="155" selection-end-column="23" />
+        <state relative-caret-position="251">
+          <caret line="204" lean-forward="true" selection-start-line="204" selection-end-line="204" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
           </folding>

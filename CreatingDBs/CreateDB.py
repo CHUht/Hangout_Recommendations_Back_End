@@ -49,7 +49,11 @@ def create_databases():
                 'website': 'VARCHAR(50)',
                 'cover_url':'VARCHAR(50)',
                 'latitude': 'FLOAT(8)',
-                'longitude': 'FLOAT(8)'}
+                'longitude': 'FLOAT(8)',
+                'occurrences':'VARCHAR(1000)',
+                'large_category':'VARCHAR(50)',
+                'small_category':'VARCHAR(50)',
+            }
     databases.append(('Events',att1))
 
     att2 = {'user_id':'INTEGER PRIMARY KEY',

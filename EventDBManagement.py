@@ -1,5 +1,7 @@
 import sqlite3
 import re
+from random import choice
+import time
 
 class EventsDBManager:
 
@@ -17,8 +19,6 @@ class EventsDBManager:
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
         self.events_ids = self.retrieve_event_ids()
-        self.tags = None
-        self.categories = None
 
     def check_number_of_instances(self):
 
@@ -34,7 +34,7 @@ class EventsDBManager:
     def add_event(self, event_id, title, category, price, description,
                   link, telephone, tags, address_street, address_city,
                   address_zipcode, date, date_end, contact_mail, facebook, website,
-                  cover_url, latitude, longitude):
+                  cover_url, latitude, longitude,occurrences,large_category,small_category):
 
         """
             This function adds a event to the event database
@@ -44,16 +44,16 @@ class EventsDBManager:
                     INSERT INTO Events (event_id, title, category, price, description, 
                   link, telephone, tags, address_street, address_city, 
                   address_zipcode, date, date_end, contact_mail, facebook, website,
-                  cover_url, latitude, longitude)
+                  cover_url, latitude, longitude,occurrences,large_category,small_category)
                     VALUES( ? , ?, ?, ?, ?, 
                   ? , ?, ?, ?, ?, 
                   ?, ?, ?, ?, ?, ?,
-                  ?, ?, ?);
+                  ?, ?, ?, ?, ?, ?);
                 """
         values = (event_id, title, category, price, description,
                   link, telephone, tags, address_street, address_city,
                   address_zipcode, date, date_end, contact_mail, facebook, website,
-                  cover_url, latitude, longitude)
+                  cover_url, latitude, longitude, occurrences,large_category,small_category)
 
         self.controller.execute(sql_command, values)
         self.connection.commit()
@@ -61,7 +61,7 @@ class EventsDBManager:
     def remove_event(self, event_id):
 
         """
-            This function removes a event rating made by the user to the database
+            This function removes an event rating made by the user to the database
         """
 
         sql_command = """
@@ -73,22 +73,20 @@ class EventsDBManager:
         self.connection.commit()
 
     def retrieve_event_ids(self):
-
         """
-            This function retrieves all event ids
-            and creates a list to make sure they are unique!
+        this function returns a list of all ids sorted by increase
         """
-
         sql_command = """
-                        SELECT event_id
-                        FROM Events
+                        SELECT DISTINCT event_id
+                        FROM Events;
                     """
-        self.controller.execute(sql_command)
 
-        events_ids = []
-        for event in self.controller.fetchall():
-            events_ids.append(event[0])
-        return events_ids
+        self.controller.execute(sql_command)
+        all_ids = self.controller.fetchall()
+        all_ids = sorted(all_ids)
+        for i in range(len(all_ids)):
+            all_ids[i] = all_ids[i][0]
+        return all_ids
 
     def return_event(self, event_id):
 
@@ -112,39 +110,118 @@ class EventsDBManager:
                  'address_city': query_result[0][9], 'address_zipcode': query_result[0][10],
                  'date': query_result[0][11], 'date_end': query_result[0][12], 'contact_mail': query_result[0][13],
                  'facebook': query_result[0][14], 'website': query_result[0][15], 'cover_url': query_result[0][16],
-                 'latitude': query_result[0][17], 'longitude': query_result[0][18]}
+                 'latitude': query_result[0][17], 'longitude': query_result[0][18], 'occurrences':query_result[0][19],
+                 'large_category':query_result[0][20],'small_category':query_result[0][21]}
 
         return [event]
 
+    def return_several_diff_events(self,number_of_events = 10):
+        """
+            This function returns several different events, at least 2 events for each large category
 
-    def get_catagories(self):
         """
-            This function returns a catagory statistics
-        """
+        if number_of_events < 10 or type(number_of_events) != int:
+            raise IndexError('number of events should >= 10')
+        events_id = []
+        cates = self.get_catagories_statistics() # dict. key: large categories, value: number of it
+
         sql_command = """
-                        SELECT category
+                        SELECT event_id, category
                         FROM Events
                     """
 
         self.controller.execute(sql_command)
         query_result = self.controller.fetchall()
-        labels_list_large = []
-        labels_list_small = []
-        for i in query_result:
-            match = re.match(r'(.*) -> (.*)',i[0])
-            list_each_large = match.group(1)
-            list_each_small = match.group(2)
-            labels_list_large.append(list_each_large)
-            labels_list_small.append(list_each_small)
+        # print(query_result)
+        cleaned_result = []
+        for id,cate in query_result:
+            match = re.match(r'(.*) -> (.*)',cate)
+            large_cate = match.group(1)
+            cleaned_result.append((id,large_cate))
+        # print(cleaned_result)
+        need = {}
+        for cate in cates.keys():
+            need[cate] = 2 # to generate list of number of needed events
+        # print(self.get_catagories_statistics())
+        all_ids = self.retrieve_event_ids()
+        while(len(events_id) < 10):
+            rand_id = choice(all_ids)
+            rand_id_cate = self.get_large_categoty(rand_id)
+            if need[rand_id_cate] > 0 and (rand_id not in events_id):
+                need[rand_id_cate] -= 1
+                # events_id.append((rand_id,rand_id_cate)r)
+                events_id.append(rand_id)
+        while(len(events_id) < number_of_events):
+            rand_id = choice(all_ids)
+            if rand_id not in events_id:
+                # events_id.append((rand_id,rand_id_cate)r)
+                events_id.append(rand_id)
+
+        events = []
+        # print(events_id)
+        for i in events_id:
+            events += self.return_event(i)
+        return events
+
+    def get_nearest_available(self,id):
+        sql_command = """
+                        SELECT event_id, occurrences
+                        FROM Events
+                        WHERE event_id = {0};
+                    """.format(id)
+
+        self.controller.execute(sql_command)
+        query_result = self.controller.fetchall()[0]
+        now = time.strftime("%Y-%m-%dT%H:%M:%S+00:00", time.localtime())
+        print(query_result)
+        period = re.findall(,query_result[1],re.I)
+
+    def number_of_events(self):
+        """
+        this function retuens the total number of events
+        """
+        all_ids = self.retrieve_event_ids()
+        return len(all_ids)
+
+
+    def return_events_by_category(self,number:int):
+        """
+            This function returns in json format the event information based on the event id!
+        """
+        cate_map = {
+        1: 'Expositions',
+        2: 'Animations',
+        3: 'Spectacles',
+        4: 'Événements',
+        5: 'Concerts'}
+        if number not in [1,2,3,4,5]:
+            raise IndexError('input should be 1,2,3,4,5')
+        all_ids = self.retrieve_event_ids()
+        while True:
+            id_random = choice(all_ids)
+            event = self.return_event(id_random)[0]
+            if event['large_category'] == cate_map[number]:
+                return event
+
+
+    def get_catagories_statistics(self):
+        """
+            This function returns a large category statistics in tuple and print
+        """
+        sql_command = """
+                        SELECT large_category,small_category
+                        FROM Events
+                    """
+
+        self.controller.execute(sql_command)
+        query_result = self.controller.fetchall()
+        print(query_result)
         category_labels_large = {}
         category_labels_small = {}
-        for i in labels_list_large:
-            category_labels_large[i] = category_labels_large.get(i,0) + 1
-        for i in labels_list_small:
-            category_labels_small[i] = category_labels_small.get(i,0) + 1
+        for i in query_result:
+            category_labels_large[i[0]] = category_labels_large.get(i[0],0) + 1
+            category_labels_small[i[1]] = category_labels_small.get(i[1],0) + 1
 
-        self.categoties_large = category_labels_large
-        self.categoties_small = category_labels_small
         print('large categories:---------------------')
         for key,value in category_labels_large.items():
             print(key,value)
@@ -153,9 +230,11 @@ class EventsDBManager:
         for key,value in category_labels_small.items():
             print(key,value)
 
-    def get_tags(self):
+        return category_labels_large
+
+    def get_tags_statistics(self):
         """
-            This function returns a random event according totags
+            This function returns tags statistics in dict and print
         """
 
         sql_command = """
@@ -172,25 +251,25 @@ class EventsDBManager:
         number_labels = {}
         for i in labels_list:
             number_labels[i] = number_labels.get(i,0) + 1
-        self.tags = number_labels
-        for key,value in self.tags.items():
-            print(key,value)
+        # for key,value in number_labels.items():
+        #     print(key,value)
         return number_labels
 
-        # event = {'event_id': query_result[0][0], 'title': query_result[0][1], 'category': query_result[0][2],
-        #          'price': query_result[0][3], 'description': query_result[0][4], 'link': query_result[0][5],
-        #          'telephone': query_result[0][6], 'tags': query_result[0][7], 'address_street': query_result[0][8],
-        #          'address_city': query_result[0][9], 'address_zipcode': query_result[0][10],
-        #          'date': query_result[0][11], 'date_end': query_result[0][12], 'contact_mail': query_result[0][13],
-        #          'facebook': query_result[0][14], 'website': query_result[0][15], 'latitude': query_result[0][16],
-        #          'longitude': query_result[0][17]}
-        #
-        # return event
+    def get_large_categoty(self, id):
+        """
+        this funciton returns the large category of a given id
+        :param id:
+        :return:
+        """
+        sql_command = """
+                        SELECT large_category
+                        FROM Events
+                        WHERE event_id = {0}
+                    """.format(id)
 
-    def return_several_events(self,number_of_events):
-        events = []
-        for i in range(number_of_events):
-            events.append(self.return_event())
+        self.controller.execute(sql_command)
+        large_category = self.controller.fetchall()[0][0]
+        return large_category
 
     def delete_Event_table(self):
         """
@@ -251,8 +330,15 @@ if __name__ == "__main__":
     #     print(key, event[key])
     # print(Events.check_database()[:2])
     # Events.return_random_events()
-    # tags = Events.get_tags()
-    cata = Events.get_catagories()
+    # print(Events.get_tags_statistics())
+    # cata = Events.get_catagories_statistics()
     # Events.delete_Event_table()
     # Events.drop_table()
     # print(Events.check_database())
+    # Events.return_ten_diff_events()
+    # print(Events.number_of_events())
+    # Events.all_ids_of_events()
+    # print(Events.get_large_categoty(2270))
+    # print(Events.return_several_diff_events())
+    # Events.get_nearest_available(2270)
+    print(Events.return_events_by_category(2))
