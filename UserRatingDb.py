@@ -34,20 +34,46 @@ class UserRatings:
             This function adds a event rating made by the user to the database
         """
 
+        if type(user_id) != int or type(event_id) != int or type(rating) != int:
+            raise TypeError("Values must be integers")
+        # to verify if this event for this user has already been rated. if yes, override it. else, insert it into database
         sql_command = """
-                    INSERT INTO UserRating(user_id, event_id, rating)
-                    VALUES ( ? , ? , ?);
-                """
+                        SELECT user_id, event_id, rating
+                        FROM UserRating
+                        WHERE user_id = '{0}'
+                        AND event_id = '{1}'
+                    """.format(user_id,event_id)
 
-        values = (user_id, event_id, rating)
-        self.controller.execute(sql_command, values)
-        self.connection.commit()
+        self.controller.execute(sql_command)
+        existing_rating = self.controller.fetchall()
+        print('existing_rating')
+        print(existing_rating)
+        if len(existing_rating) == 0:
+            sql_command = """
+                        INSERT INTO UserRating(user_id, event_id, rating)
+                        VALUES ( ? , ? , ?);
+                    """
+
+            values = (user_id, event_id, rating)
+            self.controller.execute(sql_command, values)
+            self.connection.commit()
+        else:
+            sql_command = """
+                        UPDATE UserRating SET rating = {0}
+                        WHERE user_id = '{1}'
+                        AND event_id = '{2}'
+                    """.format(rating,user_id,event_id)
+            self.controller.execute(sql_command)
+            self.connection.commit()
 
     def remove_rating(self, user_id, event_id):
 
         """
             This function removes a event rating made by the user to the database
         """
+
+        if type(user_id) != int or type(event_id) != int:
+            raise TypeError("Values must be integers")
 
         sql_command = """
                        DELETE FROM UserRating 
@@ -65,6 +91,9 @@ class UserRatings:
             It returns it in the format [(event_id, rating), (event_id, rating) ..... ]
             This allows us to compute the recommendations
         """
+
+        if type(user_id) != int:
+            raise TypeError("User id must be an int")
 
         sql_command = """
                         SELECT event_id, rating
@@ -110,7 +139,7 @@ class UserRatings:
                     FROM UserRating
                 """
         self.controller.execute(sql_command)
-
+        print('check_database')
         for col in self.controller.fetchall():
             print(col)
 
@@ -127,7 +156,18 @@ class UserRatings:
         self.controller.execute(sql_command)
         self.connection.commit()
 
+        sql_command = """
+                        VACUUM;
+                    """
+        self.controller.execute(sql_command)
+        self.connection.commit()
+
 if __name__ == "__main__":
 
-    UserRatings = UserRatings()
-    UserRatings.check_database()
+    userRatings = UserRatings()
+    userRatings.check_database()
+    userRatings.add_rating(0,0,1)
+    userRatings.add_rating(0,1,2)
+    userRatings.add_rating(0,2,5)
+    print('get_rating_from_user for user 0 ')
+    print(userRatings.get_ratings_from_user(0))

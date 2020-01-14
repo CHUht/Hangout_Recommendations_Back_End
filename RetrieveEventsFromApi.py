@@ -32,12 +32,14 @@ def get_data_from_API_with_head(url):
         data_decode = f.read().decode('utf-8')
         data_decode = json.loads(data_decode)
         #print(type(data_decode), data_decode)
+    print('data_gained')
     return data_decode
 
 
-def data_clean(raw_data):
+def data_clean(raw_data,Events,geolocator):
     events = raw_data['records']
-
+    no_label_numbers = {}
+    tag_numbers = {}
     for event in events:
 
         cleaned_event = {}
@@ -45,13 +47,22 @@ def data_clean(raw_data):
                       ('description','description'),('link','access_link'),('telephone','contact_phone'),
                       ('tags', 'tags'), ('address_street','address_street'), ('address_city','address_city'),
                       ('address_zipcode','address_zipcode'),('date','date_description'),('date_end','date_end'),
-                      ('contact_mail','contact_mail'),('facebook','contact_facebook'),('website','contact_url')]
+                      ('contact_mail','contact_mail'),('facebook','contact_facebook'),('website','contact_url'),
+                      ('cover_url','cover_url')]
 
         for a,b in label_list:
             try:
                 cleaned_event[a] = cleanhtml(event['fields'][b])
+                if a == 'tags':
+                    list_each = re.split(';',cleaned_event['tags'])
+                    labels_list = set(labels_list)
+                    for i in labels_list:
+                        tag_numbers[i] = tag_numbers.get(i, 0) + 1
+
+
             except KeyError:
                 cleaned_event[a] = "NULL"
+                no_label_numbers[a] = no_label_numbers.get(a, 0) + 1
 
         try:
             location = geolocator.geocode(cleaned_event['address_street'] + "," + cleaned_event['address_city'])
@@ -74,18 +85,29 @@ def data_clean(raw_data):
                              cleaned_event['telephone'], cleaned_event['tags'], cleaned_event['address_street'],
                              cleaned_event['address_city'], cleaned_event['address_zipcode'], cleaned_event['date'],
                              cleaned_event['date_end'], cleaned_event['contact_mail'], cleaned_event['facebook'],
-                             cleaned_event['website'], cleaned_event['latitude'], cleaned_event['longitude'])
+                             cleaned_event['website'], cleaned_event['cover_url'], cleaned_event['latitude'],
+                             cleaned_event['longitude'])
+            # print('cleaning ' + cleaned_event['event_id'] + ' not exists')
 
+        # print('cleaning ' + cleaned_event['event_id'])
+    print('no label numbers:---------------------')
+    for key,value in no_label_numbers.items():
+        print(key,value)
+    print('tag list numbers:---------------------')
+    for key,value in tag_numbers.items():
+        print(key,value)
 
-
-if __name__ == "__main__":
-
+def download_and_clean():
     geolocator = Nominatim(user_agent="Hangout Recommendation")
     Events = EventsDBManager()
 
 
     url = 'https://opendata.paris.fr/api/records/1.0/search/?dataset=que-faire-a-paris-&rows=10000&facet=category&facet=tags&facet=address_zipcode&facet=address_city&facet=pmr&facet=blind&facet=deaf&facet=access_type&facet=price_type'
     data = get_data_from_API_with_head(url)
-    data_clean(data)
+    data_clean(data,Events,geolocator)
+    print(Events.get_tags())
 
-    Events.check_database()
+    # Events.check_database()
+
+if __name__ == "__main__":
+    download_and_clean()
