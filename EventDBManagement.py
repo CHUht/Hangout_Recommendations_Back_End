@@ -162,7 +162,7 @@ class EventsDBManager:
         events = []
         # print(events_id)
         for i in events_id:
-            events += self.return_event(i)
+            events += self.get_nearest_available(i)
         return events
 
     def get_nearest_available(self,id):
