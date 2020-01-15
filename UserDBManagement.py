@@ -2,7 +2,7 @@ import sqlite3
 from ToolFunctions import singleton
 
 @singleton
-class UserdbManagement:
+class UserDBManager:
     def __init__(self):
         """
             Here we start all the points necessary to start this class
@@ -11,7 +11,6 @@ class UserdbManagement:
         """
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
-
         self.set_last_id()
 
     def set_last_id(self):
@@ -27,15 +26,15 @@ class UserdbManagement:
                 """
         self.controller.execute(sql_command)
         all_ids = self.controller.fetchall()
-        print('all_ids')
-        print(all_ids)
+        # print('all_ids')
+        # print(all_ids)
         if len(all_ids) == 0:
             self.last_id = -1
         else:
             self.last_id = all_ids[-1][0]
 
 
-    def create_new_user(self, uname, psw, address, city, latitute, longitude):
+    def create_new_user(self, uname, psw, email ,address = None, city = 'Paris'):
 
         """
             This function adds a new user to the user db table!
@@ -45,11 +44,11 @@ class UserdbManagement:
 
         self.last_id = self.last_id + 1
         sql_command = """
-            INSERT INTO Users(user_id, uname, pword, address, city, latitude, longitude)
+            INSERT INTO Users(user_id, uname, pword, email, address, city)
             VALUES ( ?, ?, ?, ?, ?, ?, ? );
         """
 
-        values = (self.last_id, uname, psw, address, city, latitute, longitude)
+        values = (self.last_id, uname, psw, address, city, email)
         self.controller.execute(sql_command, values)
         self.connection.commit()
 
@@ -134,10 +133,11 @@ class UserdbManagement:
                 """
         self.controller.execute(sql_command)
 
-        print('checke_database')
+        # print('checke_database')
 
-        for col in self.controller.fetchall():
-            print(col)
+        # for col in self.controller.fetchall():
+        #     print(col)
+        return self.controller.fetchall()
 
     def delete_user_table(self):
         """
@@ -170,15 +170,6 @@ class UserdbManagement:
 
 
 if __name__ == "__main__":
-    UserDB = UserdbManagement()
-    UserDB.check_database()
-    UserDB.create_new_user('Li', 'nopw', 123, 12)
-    UserDB.create_new_user('Fafa', '123', 11, 22)
-    print('usernames')
-    print(UserDB.return_usernames())
-    print('fafa_re')
-    print(UserDB.return_user_data("Fafa"))
-    print('fafa_123_re')
-    print(UserDB.user_authentication("Fafa","123"))
-    print('all_list')
-    print(UserDB.check_database())
+    userDBManager = UserDBManager()
+    userDBManager.check_database()
+    # userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')

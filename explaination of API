@@ -1,7 +1,7 @@
 1.rating for events is scored by 1 to 5 and can only be integer.
 2.Userdatabase: user_id INTEGER PRIMARY KEY,uname VARCHAR(50),pword VARCHAR(50),latitude FLOAT(8),longitude FLOAT(8)
   UserRating: user_id INTEGER,event_id INTEGER,rating INTEGER
-  UserLike: user_id INTEGER,event_id
+  UserLikeManager: user_id INTEGER,event_id
   EventDBManagement:'event_id': 'INTEGER PRIMARY KEY',
                 'title': 'VARCHAR(50)',
                 'category': 'VARCHAR(50)',
@@ -42,7 +42,7 @@ UserRating:
                 This allows us to compute the recommendations
     check_database(self): Returns everything in it
 
-UserLike:
+UserLikeManager:
     add_like(self, user_id, event_id):adds a event like made by the user to the database
     remove_like(self, user_id, event_id): This function removes an event like made by the user to the database
     get_like_from_user(self, user_id): returns all event likes from a specific user

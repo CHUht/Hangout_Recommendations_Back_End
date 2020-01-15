@@ -1,12 +1,9 @@
 import sqlite3
-from UserRatingDb import UserRatings
+from UserRatingDBManagement import UserRatingManager
 from ToolFunctions import singleton
 
 @singleton
-class UserLike:
-
-    management_instances_created = 0
-
+class UserLikeManager:
     def __init__(self):
 
         """
@@ -14,7 +11,7 @@ class UserLike:
             We need to connect to the database
             and get the last id!
         """
-        self.connection = sqlite3.connect("UserLike.db", check_same_thread=False)
+        self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
 
     def add_like(self, user_id, event_id):
@@ -47,8 +44,8 @@ class UserLike:
             self.controller.execute(sql_command, values)
             self.connection.commit()
         # if user likes one event, should rate it 5 points automatically
-        userRatings = UserRatings()
-        userRatings.add_rating(user_id,event_id,5)
+        userRatingManager = UserRatingManager()
+        userRatingManager.add_rating(user_id,event_id,5)
 
 
     def remove_like(self, user_id, event_id):
@@ -61,7 +58,7 @@ class UserLike:
             raise TypeError("Values must be integers")
 
         sql_command = """
-                       DELETE FROM UserLike 
+                       DELETE FROM UserLike
                        WHERE UserLike.user_id = '{0}'
                        AND UserLike.event_id = '{1}'
                     """.format(user_id, event_id)
@@ -138,6 +135,6 @@ class UserLike:
 
 if __name__ == "__main__":
 
-    userLike = UserLike()
-    userLike2 = UserLike()
-    print(userLike,userLike2)
+    userLikeManager = UserLikeManager()
+    userLikeManager2 = UserLikeManager()
+    print(userLikeManager,userLikeManager2)
