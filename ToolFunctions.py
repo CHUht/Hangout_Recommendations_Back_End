@@ -1,3 +1,12 @@
+def singleton(cls):
+    _instance = {}
+
+    def inner():
+        if cls not in _instance:
+            _instance[cls] = cls()
+        return _instance[cls]
+    return inner
+
 jour_semaine = {'0':'dimanche',
                 '1':'lundi',
                 '2':'mardi',

@@ -1,0 +1,52 @@
+1.rating for events is scored by 1 to 5 and can only be integer.
+2.Userdatabase: user_id INTEGER PRIMARY KEY,uname VARCHAR(50),pword VARCHAR(50),latitude FLOAT(8),longitude FLOAT(8)
+  UserRating: user_id INTEGER,event_id INTEGER,rating INTEGER
+  UserLike: user_id INTEGER,event_id
+  EventDBManagement:'event_id': 'INTEGER PRIMARY KEY',
+                'title': 'VARCHAR(50)',
+                'category': 'VARCHAR(50)',
+                'price': 'VARCHAR(50)',
+                'description': 'VARCHAR(300)',
+                'link': 'VARCHAR(50)',
+                'telephone': 'VARCHAR(50)',
+                'tags': 'VARCHAR(50)',
+                'address_street': 'VARCHAR(50)',
+                'address_city': 'VARCHAR(50)',
+                'address_zipcode': 'VARCHAR(50)',
+                'date': 'VARCHAR(50)',
+                'date_end': 'VARCHAR(50)',
+                'contact_mail': 'VARCHAR(50)',
+                'facebook': 'VARCHAR(50)',
+                'website': 'VARCHAR(50)',
+                'cover_url':'VARCHAR(50)',
+                'latitude': 'FLOAT(8)',
+                'longitude': 'FLOAT(8)',
+                'occurrences':'VARCHAR(1000)',
+                'large_category':'VARCHAR(50)',
+                'small_category':'VARCHAR(50)',
+
+Userdatabase:
+    set_last_id(self): we find the last id on the database
+    create_new_user(self, uname, psw, latitute, longitude): adds a new user to the user db table
+    return_user_data(self, uname): return the user profile based on the username
+    return_usernames(self): returns a list with all usernames
+    user_authentication(self, uname, password): returns true if the username matches the password
+                False otherwise
+    check_database(self): Returns everything in it
+
+UserRating:
+    add_rating(self, user_id, event_id, rating):adds a event rating made by the user to the database
+    remove_rating(self, user_id, event_id): This function removes a event rating made by the user to the database
+    get_ratings_from_user(self, user_id): returns all event ratings from a specific user
+                It returns it in the format [(event_id, rating), (event_id, rating) ..... ]
+                This allows us to compute the recommendations
+    check_database(self): Returns everything in it
+
+UserLike:
+    add_like(self, user_id, event_id):adds a event like made by the user to the database
+    remove_like(self, user_id, event_id): This function removes an event like made by the user to the database
+    get_like_from_user(self, user_id): returns all event likes from a specific user
+                It returns it in the format [(event_id, rating), (event_id, rating) ..... ]
+                This allows us to compute the recommendations
+    check_database(self): Returns everything in it
+if user likes one event, should rate it 5 points automatically

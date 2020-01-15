@@ -1,14 +1,9 @@
 import sqlite3
+from ToolFunctions import singleton
 
-
+@singleton
 class UserRatings:
-
-    management_instances_created = 0
-
     def __init__(self):
-
-        self.check_number_of_instances()
-
         """
             Here we start all the points necessary to start this class
             We need to connect to the database
@@ -16,17 +11,6 @@ class UserRatings:
         """
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
-
-    def check_number_of_instances(self):
-
-        """
-            To avoid conflicts we only generate a single instance of each db manager
-        """
-
-        if UserRatings.management_instances_created != 0:
-            raise ValueError("There can only be one database manager")
-        else:
-            UserRatings.management_instances_created = UserRatings.management_instances_created + 1
 
     def add_rating(self, user_id, event_id, rating):
 
@@ -161,6 +145,7 @@ class UserRatings:
                     """
         self.controller.execute(sql_command)
         self.connection.commit()
+
     def drop_table(self):
         """
             Created for debuging

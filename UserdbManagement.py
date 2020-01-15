@@ -1,14 +1,9 @@
 import sqlite3
+from ToolFunctions import singleton
 
-
+@singleton
 class UserdbManagement:
-
-    management_instances_created = 0
-
     def __init__(self):
-
-        self.check_number_of_instances()
-
         """
             Here we start all the points necessary to start this class
             We need to connect to the database
@@ -18,14 +13,6 @@ class UserdbManagement:
         self.controller = self.connection.cursor()
 
         self.set_last_id()
-
-    def check_number_of_instances(self):
-
-        if( UserdbManagement.management_instances_created != 0):
-            raise ValueError("There can only be one database manager")
-        else:
-            UserdbManagement.management_instances_created = UserdbManagement.management_instances_created + 1
-
 
     def set_last_id(self):
 

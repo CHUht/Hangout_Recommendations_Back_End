@@ -1,14 +1,13 @@
 import sqlite3
 from UserRatingDb import UserRatings
+from ToolFunctions import singleton
 
-
+@singleton
 class UserLike:
 
     management_instances_created = 0
 
     def __init__(self):
-
-        self.check_number_of_instances()
 
         """
             Here we start all the points necessary to start this class
@@ -17,18 +16,6 @@ class UserLike:
         """
         self.connection = sqlite3.connect("UserLike.db", check_same_thread=False)
         self.controller = self.connection.cursor()
-
-    def check_number_of_instances(self):
-
-        """
-            To avoid conflicts we only generate a single instance of each db manager
-        """
-
-        if UserLike.management_instances_created != 0:
-            raise ValueError("There can only be one database manager")
-        else:
-
-            UserLike.management_instances_created = UserLike.management_instances_created + 1
 
     def add_like(self, user_id, event_id):
 
@@ -138,13 +125,19 @@ class UserLike:
         self.controller.execute(sql_command)
         self.connection.commit()
 
+    def drop_table(self):
+        """
+            Created for debuging
+            Drops the table!
+        """
+
+        sql_command = """
+                    DROP TABLE UserLike;
+                """
+        self.connection.execute(sql_command)
 
 if __name__ == "__main__":
 
-    UserLike = UserLike()
-    UserLike.check_database()
-    UserLike.add_like(0, 0)
-    UserLike.add_like(0, 1)
-    UserLike.add_like(0, 2)
-    print('get_likes_from_user')
-    print(UserLike.get_likes_from_user(0))
+    userLike = UserLike()
+    userLike2 = UserLike()
+    print(userLike,userLike2)

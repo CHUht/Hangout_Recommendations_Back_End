@@ -5,14 +5,9 @@ from time import *
 import datetime
 from ToolFunctions import *
 
+@singleton
 class EventsDBManager:
-
-    management_instances_created = 0
-
     def __init__(self):
-
-        self.check_number_of_instances()
-
         """
             Here we start all the points necessary to start this class
             We need to connect to the database
@@ -21,20 +16,6 @@ class EventsDBManager:
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
         self.events_ids = self.retrieve_event_ids()
-
-    def check_number_of_instances(self):
-
-        """
-            To avoid conflicts we only generate a single instance of each db manager
-        """
-
-
-
-
-        if EventsDBManager.management_instances_created != 0:
-            raise ValueError("There can only be one database manager")
-        else:
-            EventsDBManager.management_instances_created = EventsDBManager.management_instances_created + 1
 
     def add_event(self, event_id, title, category, price, description,
                   link, telephone, tags, address_street, address_city,
