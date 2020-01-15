@@ -3,7 +3,7 @@ import re
 from random import choice
 from time import *
 import datetime
-from ToolFunctions import jour_semaine
+from ToolFunctions import *
 
 class EventsDBManager:
 
@@ -27,6 +27,9 @@ class EventsDBManager:
         """
             To avoid conflicts we only generate a single instance of each db manager
         """
+
+
+
 
         if EventsDBManager.management_instances_created != 0:
             raise ValueError("There can only be one database manager")
@@ -115,7 +118,7 @@ class EventsDBManager:
                  'latitude': query_result[0][17], 'longitude': query_result[0][18], 'occurrences':query_result[0][19],
                  'large_category':query_result[0][20],'small_category':query_result[0][21]}
 
-        return [event]
+        return event
 
     def return_several_diff_events(self,number_of_events = 10):
         """
@@ -128,7 +131,7 @@ class EventsDBManager:
         cates = self.get_catagories_statistics() # dict. key: large categories, value: number of it
 
         sql_command = """
-                        SELECT event_id, category
+                        SELECT event_id, large_category
                         FROM Events
                     """
 
@@ -136,9 +139,7 @@ class EventsDBManager:
         query_result = self.controller.fetchall()
         # print(query_result)
         cleaned_result = []
-        for id,cate in query_result:
-            match = re.match(r'(.*) -> (.*)',cate)
-            large_cate = match.group(1)
+        for id,large_cate in query_result:
             cleaned_result.append((id,large_cate))
         # print(cleaned_result)
         need = {}
@@ -162,7 +163,53 @@ class EventsDBManager:
         events = []
         # print(events_id)
         for i in events_id:
-            events += self.get_nearest_available(i)
+            event_raw = self.get_nearest_available(i)
+            event = {}
+            attr_list = ['event_id', 'title', 'address_street', 'address_city',
+                  'cover_url','large_category','nearest']
+            for key,value in event_raw.items():
+                if key in attr_list:
+                    event[key] = value
+            events.append(event)
+        return events
+
+    def return_several_events_of_a_cate(self, cate_type, number_of_events = 10):
+        """
+            This function returns several different events, at least 2 events for each large category
+
+        """
+        if  type(cate_type) != int or cate_type <= 0:
+            raise IndexError('number of events should be a positive integer')
+        cates = self.get_catagories_statistics() # dict. key: large categories, value: number of it
+
+        sql_command = """
+                        SELECT event_id
+                        FROM Events
+                        WHERE large_category = '{0}';
+                    """.format(cate_map[cate_type])
+
+        self.controller.execute(sql_command)
+        ids_of_this_cate = self.controller.fetchall()
+        for i in range(len(ids_of_this_cate)):
+            ids_of_this_cate[i] = ids_of_this_cate[i][0]
+        # print(query_result)
+        events_id = []
+        while(len(events_id) < number_of_events):
+            rand_id = choice(ids_of_this_cate)
+            if rand_id not in events_id:
+                events_id.append(rand_id)
+
+        events = []
+        # print(events_id)
+        for i in events_id:
+            event_raw = self.get_nearest_available(i)
+            event = {}
+            attr_list = ['event_id', 'title', 'address_street', 'address_city',
+                  'cover_url','large_category','nearest']
+            for key,value in event_raw.items():
+                if key in attr_list:
+                    event[key] = value
+            events.append(event)
         return events
 
     def get_nearest_available(self,id):
@@ -175,24 +222,23 @@ class EventsDBManager:
         self.controller.execute(sql_command)
         query_result = self.controller.fetchall()[0]
         now = strftime("%Y-%m-%dT%H:%M:%S", localtime())
-        print(query_result)
-        for ev in query_result:
-            pattern = re.compile('(20.*?)_(20.*?);')
-            occurrences = re.findall(pattern, query_result[1])
-            occurrences_cleaned = []
-            for i in range(len(occurrences)):
-                period = []
-                for j in range(2):
-                    splited = re.match('(.*?)T(.*?):(.*?):(.*?)\+(.*):00',occurrences[i][j])
-                    date_start = splited.group(1)
-                    hour = splited.group(2)
-                    minute = splited.group(3)
-                    second = splited.group(4)
-                    diff = splited.group(5)
-                    hour = str(int(hour) - int(diff))
-                    time = (date_start+'T'+hour+':'+ minute+':'+second)
-                    period.append(time)
-                occurrences_cleaned.append(period)
+        # print(query_result)
+        pattern = re.compile('(20.*?)_(20.*?);')
+        occurrences = re.findall(pattern, query_result[1])
+        occurrences_cleaned = []
+        for i in range(len(occurrences)):
+            period = []
+            for j in range(2):
+                splited = re.match('(.*?)T(.*?):(.*?):(.*?)\+(.*):00',occurrences[i][j])
+                date_start = splited.group(1)
+                hour = splited.group(2)
+                minute = splited.group(3)
+                second = splited.group(4)
+                diff = splited.group(5)
+                hour = str(int(hour) - int(diff))
+                time = (date_start+' '+hour+':'+ minute+':'+second)
+                period.append(time)
+            occurrences_cleaned.append(period)
         # print(occurrences_cleaned)
         # print(now)
         nearest = None
@@ -202,14 +248,18 @@ class EventsDBManager:
                 break
 
         if nearest != None:
-            whatday= datetime.datetime.strptime(nearest,'%Y-%m-%dT%H:%M:%S').strftime("%w")
+            # print(nearest,query_result[0])
+            if nearest[11] == '-':
+                nearest = nearest[:11]+nearest[12:]
+            whatday= datetime.datetime.strptime(nearest,'%Y-%m-%d %H:%M:%S').strftime("%w")
             whatday =jour_semaine[whatday]
             nearest += (' '+ whatday)
         else:
             nearest = "ce n'est pas no plus accesible"
-        print(nearest)
+        # print(nearest)
         event_to_return = self.return_event(query_result[0])
-        event_to_return['nearest']:nearest
+        event_to_return['nearest'] = nearest
+        # print(event_to_return['nearest'])
         return event_to_return
 
     def number_of_events(self):
@@ -224,18 +274,13 @@ class EventsDBManager:
         """
             This function returns in json format the event information based on the event id!
         """
-        cate_map = {
-        1: 'Expositions',
-        2: 'Animations',
-        3: 'Spectacles',
-        4: 'Événements',
-        5: 'Concerts'}
+
         if number not in [1,2,3,4,5]:
             raise IndexError('input should be 1,2,3,4,5')
         all_ids = self.retrieve_event_ids()
         while True:
             id_random = choice(all_ids)
-            event = self.return_event(id_random)[0]
+            event = self.return_event(id_random)
             if event['large_category'] == cate_map[number]:
                 return event
 
@@ -258,13 +303,13 @@ class EventsDBManager:
             category_labels_large[i[0]] = category_labels_large.get(i[0],0) + 1
             category_labels_small[i[1]] = category_labels_small.get(i[1],0) + 1
 
-        print('large categories:---------------------')
-        for key,value in category_labels_large.items():
-            print(key,value)
-
-        print('small categories:---------------------')
-        for key,value in category_labels_small.items():
-            print(key,value)
+        # print('large categories:---------------------')
+        # for key,value in category_labels_large.items():
+        #     print(key,value)
+        #
+        # print('small categories:---------------------')
+        # for key,value in category_labels_small.items():
+        #     print(key,value)
 
         return category_labels_large
 
@@ -360,10 +405,8 @@ class EventsDBManager:
 if __name__ == "__main__":
 
     Events = EventsDBManager()
-    event = Events.return_event(1)# event is in type of dict of an event.
-
-    # for key in event:
-    #     print(key, event[key])
+    # event = Events.return_event(1)# event is in type of dict of an event.
+    # print(event)
     # print(Events.check_database()[:2])
     # Events.return_random_events()
     # print(Events.get_tags_statistics())
@@ -375,6 +418,9 @@ if __name__ == "__main__":
     # print(Events.number_of_events())
     # Events.all_ids_of_events()
     # print(Events.get_large_categoty(2270))
-    # print(Events.return_several_diff_events())
-    Events.get_nearest_available(2270)
+    diff_events = Events.return_several_events_of_a_cate(1)
+    print(len(diff_events))
+    for i in diff_events:
+        print(i)
+    # print(Events.get_nearest_available(99812))
     # print(Events.return_events_by_category(2))
