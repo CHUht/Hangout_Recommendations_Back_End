@@ -57,15 +57,15 @@ def get_random_event():
     return jsonify({'event': rdm_event})
 
 
-@app.route('/api/v1.0/Events/Categories/<int:cate_id>', methods=['GET'])
+@app.route('/api/v1.0/Events/Categories/<category>', methods=['GET'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
-def get_event_by_category(cate_id=0):
+def get_event_by_category(category):
     """
     Frontend gets a list of events by selected category
     :return:
     """
-    cate_event = event_manager.return_events_by_category(Cate_map[cate_id])  # to do
-    if len(cate_event) == 0 or cate_id == 0:
+    cate_event = event_manager.return_events_by_category(category)  # to do
+    if len(cate_event) == 0 or category == '':
         abort(404)
     return jsonify({'event': cate_event})
 
@@ -90,19 +90,19 @@ def user_login():
     return jsonify({'user_online': user_info})
 
 
-@app.route('/api/v1.0/Users/<int:user_id>', methods=['GET', 'PUT'])
+@app.route('/api/v1.0/Users/<uname>', methods=['GET', 'PUT'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
-def user_profile(user_id=0):
+def user_profile(uname=None):
     if request.method == 'GET':
-        user = user_manager.return_user_data(user_id)
+        user = user_manager.return_user_data(uname)
         if len(user) == 0:
             abort(404)
-        preferred_events_id = rcmd_manager.get_recommendations_for_user(user_id)
+        preferred_events_id = rcmd_manager.get_recommendations_for_user(user_manager.return_user_id(uname))
         preferred_events = []
         for pair in preferred_events_id:
             preferred_events.append({'activity': event_manager.return_event(pair[0]),
                                     'score': pair[1]})
-        return jsonify({'user': user[0], 'event': preferred_events})
+        return jsonify({'user': user, 'event': preferred_events})
     elif request.method == 'PUT':
         if not request.json:
             abort(400)
@@ -184,6 +184,7 @@ def event_search():
     if request.method == 'POST':
         if not request.json:
             abort(400)
+        search = request.json
         # to do
         events = []
         return jsonify({'events': events})

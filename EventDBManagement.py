@@ -245,7 +245,7 @@ class EventsDBManager:
         return
 
     def return_ten_diff_events(self):
-        return
+        return self.check_database()[:10]
 
 
 if __name__ == "__main__":
@@ -261,4 +261,4 @@ if __name__ == "__main__":
     cata = Events.get_catagories()
     # Events.delete_Event_table()
     # Events.drop_table()
-    print(Events.check_database())
+    print(Events.return_event(2270))
