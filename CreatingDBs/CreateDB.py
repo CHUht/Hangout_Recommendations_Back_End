@@ -72,7 +72,7 @@ def create_databases():
     att4 = {'user_id': 'INTEGER',
                 'event_id': 'INTEGER',
                 'score': 'FLOAT(8)'}
-    databases.append(('UserRecommendation',att4))
+    databases.append(('UserRecommendations',att4))
 
     att5 = {'user_id': 'INTEGER',
                 'event_id': 'INTEGER'}
