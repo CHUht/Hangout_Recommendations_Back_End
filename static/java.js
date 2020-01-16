@@ -32,7 +32,7 @@ function deleteAllCookies() {
 
 function save_user_and_pass( ) {
     var username = document.getElementById("uname").value;
-    var password = document.getElementById("psw").value;
+    var password = document.getElementById("pword").value;
     setCookie("username",username, 3);
     setCookie("password",password, 3);
 }
