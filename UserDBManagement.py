@@ -45,7 +45,7 @@ class UserDBManager:
         self.last_id = self.last_id + 1
         sql_command = """
             INSERT INTO Users(user_id, uname, pword, email, address, city)
-            VALUES ( ?, ?, ?, ?, ?, ?, ? );
+            VALUES ( ?, ?, ?, ?, ?, ? );
         """
 
         values = (self.last_id, uname, psw, address, city, email)
@@ -171,5 +171,9 @@ class UserDBManager:
 
 if __name__ == "__main__":
     userDBManager = UserDBManager()
-    userDBManager.check_database()
+    # print(userDBManager.check_database())
     # userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')
+    # userDBManager.create_new_user('Lu','withpw','jiaohao.li@student-cs.fr')
+    # userDBManager.delete_user_table()
+    # userDBManager.drop_table()
+    # print(userDBManager.return_usernames())

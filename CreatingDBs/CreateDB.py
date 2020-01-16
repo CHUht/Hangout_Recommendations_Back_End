@@ -59,8 +59,9 @@ def create_databases():
     att2 = {'user_id':'INTEGER PRIMARY KEY',
                 'uname': 'VARCHAR(50)',
                 'pword': 'VARCHAR(50)',
-                'latitude': 'FLOAT(8)',
-                'longitude': 'FLOAT(8)'}
+                'email': 'VARCHAR(50)',
+                'address': 'VARCHAR(50)',
+                'city': 'VARCHAR(50)'}
     databases.append(('Users',att2))
 
     att3 = {'user_id': 'INTEGER',
