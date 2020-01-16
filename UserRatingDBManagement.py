@@ -1,5 +1,5 @@
 import sqlite3
-from ToolFunctions import singleton
+from BackendAPIStaticList import singleton
 
 @singleton
 class UserRatingManager:

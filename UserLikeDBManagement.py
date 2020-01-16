@@ -1,6 +1,6 @@
 import sqlite3
 from UserRatingDBManagement import UserRatingManager
-from ToolFunctions import singleton
+from BackendAPIStaticList import singleton
 
 @singleton
 class UserLikeManager:
