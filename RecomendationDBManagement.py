@@ -95,7 +95,17 @@ class RecomendationDBManager:
                     """
         self.controller.execute(sql_command)
         self.connection.commit()
+    def drop_table(self):
+        """
+            Created for debuging
+            Drops the table!
+        """
+
+        sql_command = """
+                    DROP TABLE UserRecommendations;
+                """
+        self.connection.execute(sql_command)
 
 if __name__ == "__main__":
-
-    pass
+    recommendationDBManager = RecomendationDBManager()
+    recommendationDBManager.drop_table()

@@ -4,6 +4,7 @@ from random import choice
 from time import *
 import datetime
 from BackendAPIStaticList import *
+from threading import Lock
 
 @singleton
 class EventsDBManager:
@@ -299,18 +300,38 @@ class EventsDBManager:
 
     def number_of_events(self):
         """
-        this function retuens the total number of events
+            This function returns the total number of events
         """
         all_ids = self.retrieve_event_ids()
         return len(all_ids)
 
     def all_events_of_lagrg_cates(self,cate_type):
+        """
+            This function returns all events of a specified larde category
+        """
         if cate_type not in [1,2,3,4,5]:
             raise IndexError('input should be 1,2,3,4,5')
         return self.search_key_words(cate_map[cate_type])
 
     def all_events_of_small_cates(self,cate_name):
+        """
+            This function returns all events of a specified small category
+        """
         return self.search_key_words(cate_name)
+
+    def get_no_label_statistics(self):
+        all = self.check_database()
+        label_list = ['event_id', 'title', 'category', 'price', 'description',
+                          'link', 'telephone', 'tags', 'address_street', 'address_city',
+                          'address_zipcode', 'date', 'date_end', 'contact_mail', 'facebook', 'website',
+                          'cover_url', 'latitude', 'longitude','occurrences','large_category','small_category']
+        dict = {}
+        for event in all:
+            for i in range(len(event)):
+                if event[i] == "NULL":
+                    dict[label_list[i]] = dict.get(label_list[i],0) + 1
+        return dict
+
 
     def get_catagories_statistics(self):
         """
@@ -362,7 +383,9 @@ class EventsDBManager:
             number_labels[i] = number_labels.get(i,0) + 1
         # for key,value in number_labels.items():
         #     print(key,value)
-        return number_labels
+        number_labels.pop('NULL')
+        number_labels.pop('English')
+        return list(number_labels.keys())
 
     def get_large_categoty(self, id):
         """
@@ -437,7 +460,7 @@ if __name__ == "__main__":
     # print(event)
     # print(eventsDBManager.check_database()[:2])
     # eventsDBManager.return_random_events()
-    # print(eventsDBManager.get_tags_statistics())
+    print(eventsDBManager.get_tags_statistics())
     # cata = eventsDBManager.get_catagories_statistics()
     # print(cata)
     # eventsDBManager.delete_Event_table()
@@ -455,4 +478,7 @@ if __name__ == "__main__":
     # print(eventsDBManager.return_events_by_category(2))
     # result = eventsDBManager.search_key_words('Mange')
     # print(len(result),result)
-    print(len(eventsDBManager.all_events_of_lagrg_cates(1)))
+    # print(len(eventsDBManager.all_events_of_lagrg_cates(1)))
+    # dict = eventsDBManager.get_no_label_statistics()
+    # for key,value in dict.items():
+    #     print(key,value)
