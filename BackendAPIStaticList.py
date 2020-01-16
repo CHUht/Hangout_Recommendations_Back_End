@@ -8,6 +8,15 @@ cate_map = {
         5: 'Concerts'
     }
 
+cate_re_map = {
+        'Expositions': 1,
+        'Animations': 2,
+        'Spectacles': 3,
+        'Événements': 4,
+        'Concerts': 5
+    }
+
+
 host = socket.gethostbyname(socket.gethostname())
 url_root = r'http://' + host + ':8080'
 url_api = r'/api/v1.0'
@@ -39,6 +48,16 @@ r'/Users/reset_password'[PUT]: 重置user密码，（待议）
 r'/Events/search'[POST]: 收取搜索词key-value pairs { 'title': '...', 'address_city': '...', ...}, 返回找到的events概览，找不到则抛出404
 """
 
+
+def singleton(cls):
+    _instance = {}
+
+    def inner():
+        if cls not in _instance:
+            _instance[cls] = cls()
+        return _instance[cls]
+    return inner
+
 jour_semaine = {'0':'dimanche',
                 '1':'lundi',
                 '2':'mardi',
@@ -46,3 +65,4 @@ jour_semaine = {'0':'dimanche',
                 '4':'jeudi',
                 '5':'vendredi',
                 '6':'samedi'}
+

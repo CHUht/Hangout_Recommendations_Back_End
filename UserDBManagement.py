@@ -1,14 +1,9 @@
 import sqlite3
+from BackendAPIStaticList import singleton
 
-
-class UserdbManagement:
-
-    management_instances_created = 0
-
+@singleton
+class UserDBManager:
     def __init__(self):
-
-        self.check_number_of_instances()
-
         """
             Here we start all the points necessary to start this class
             We need to connect to the database
@@ -16,16 +11,7 @@ class UserdbManagement:
         """
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
-
         self.set_last_id()
-
-    def check_number_of_instances(self):
-
-        if( UserdbManagement.management_instances_created != 0):
-            raise ValueError("There can only be one database manager")
-        else:
-            UserdbManagement.management_instances_created = UserdbManagement.management_instances_created + 1
-
 
     def set_last_id(self):
 
@@ -40,15 +26,15 @@ class UserdbManagement:
                 """
         self.controller.execute(sql_command)
         all_ids = self.controller.fetchall()
-        print('all_ids')
-        print(all_ids)
+        # print('all_ids')
+        # print(all_ids)
         if len(all_ids) == 0:
             self.last_id = -1
         else:
             self.last_id = all_ids[-1][0]
 
 
-    def create_new_user(self, uname, psw, address, city, latitute, longitude):
+    def create_new_user(self, uname, psw, email ,address = None, city = 'Paris'):
 
         """
             This function adds a new user to the user db table!
@@ -58,11 +44,11 @@ class UserdbManagement:
 
         self.last_id = self.last_id + 1
         sql_command = """
-            INSERT INTO Users(user_id, uname, pword, address, city, latitude, longitude)
+            INSERT INTO Users(user_id, uname, pword, email, address, city)
             VALUES ( ?, ?, ?, ?, ?, ?, ? );
         """
 
-        values = (self.last_id, uname, psw, address, city, latitute, longitude)
+        values = (self.last_id, uname, psw, address, city, email)
         self.controller.execute(sql_command, values)
         self.connection.commit()
 
@@ -147,10 +133,11 @@ class UserdbManagement:
                 """
         self.controller.execute(sql_command)
 
-        print('checke_database')
+        # print('checke_database')
 
-        for col in self.controller.fetchall():
-            print(col)
+        # for col in self.controller.fetchall():
+        #     print(col)
+        return self.controller.fetchall()
 
     def delete_user_table(self):
         """
@@ -177,21 +164,12 @@ class UserdbManagement:
         """
 
         sql_command = """
-                    DROP TABLE Userdatabase;
+                    DROP TABLE Users;
                 """
         self.connection.execute(sql_command)
 
 
 if __name__ == "__main__":
-    UserDB = UserdbManagement()
-    UserDB.check_database()
-    UserDB.create_new_user('Li', 'nopw', 123, 12)
-    UserDB.create_new_user('Fafa', '123', 11, 22)
-    print('usernames')
-    print(UserDB.return_usernames())
-    print('fafa_re')
-    print(UserDB.return_user_data("Fafa"))
-    print('fafa_123_re')
-    print(UserDB.user_authentication("Fafa","123"))
-    print('all_list')
-    print(UserDB.check_database())
+    userDBManager = UserDBManager()
+    userDBManager.check_database()
+    # userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')

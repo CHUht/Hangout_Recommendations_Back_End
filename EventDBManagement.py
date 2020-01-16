@@ -5,14 +5,9 @@ from time import *
 import datetime
 from BackendAPIStaticList import *
 
+@singleton
 class EventsDBManager:
-
-    management_instances_created = 0
-
     def __init__(self):
-
-        self.check_number_of_instances()
-
         """
             Here we start all the points necessary to start this class
             We need to connect to the database
@@ -21,20 +16,6 @@ class EventsDBManager:
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
         self.events_ids = self.retrieve_event_ids()
-
-    def check_number_of_instances(self):
-
-        """
-            To avoid conflicts we only generate a single instance of each db manager
-        """
-
-
-
-
-        if EventsDBManager.management_instances_created != 0:
-            raise ValueError("There can only be one database manager")
-        else:
-            EventsDBManager.management_instances_created = EventsDBManager.management_instances_created + 1
 
     def add_event(self, event_id, title, category, price, description,
                   link, telephone, tags, address_street, address_city,
@@ -93,7 +74,7 @@ class EventsDBManager:
             all_ids[i] = all_ids[i][0]
         return all_ids
 
-    def return_event(self, event_id):
+    def return_event_no_nearest(self, event_id):
 
         """
             This function returns in json format the event information based on the event id!
@@ -163,7 +144,7 @@ class EventsDBManager:
         events = []
         # print(events_id)
         for i in events_id:
-            event_raw = self.get_nearest_available(i)
+            event_raw = self.get_event_with_nearest(i)
             event = {}
             attr_list = ['event_id', 'title', 'address_street', 'address_city',
                   'cover_url','large_category','nearest']
@@ -186,7 +167,7 @@ class EventsDBManager:
                         SELECT event_id
                         FROM Events
                         WHERE large_category = '{0}';
-                    """.format(cate_type)
+                    """.format(cate_map[cate_type])
 
         self.controller.execute(sql_command)
         ids_of_this_cate = self.controller.fetchall()
@@ -202,7 +183,7 @@ class EventsDBManager:
         events = []
         # print(events_id)
         for i in events_id:
-            event_raw = self.get_nearest_available(i)
+            event_raw = self.get_event_with_nearest(i)
             event = {}
             attr_list = ['event_id', 'title', 'address_street', 'address_city',
                   'cover_url','large_category','nearest']
@@ -212,7 +193,12 @@ class EventsDBManager:
             events.append(event)
         return events
 
-    def get_nearest_available(self,id):
+    def get_event_with_nearest(self, id):
+        """
+        this function returns an event dict with the nearest occurence
+        :param id: int
+        :return: dict
+        """
         sql_command = """
                         SELECT event_id, occurrences
                         FROM Events
@@ -257,7 +243,7 @@ class EventsDBManager:
         else:
             nearest = "ce n'est pas no plus accesible"
         # print(nearest)
-        event_to_return = self.return_event(query_result[0])
+        event_to_return = self.return_event_no_nearest(query_result[0])
         event_to_return['nearest'] = nearest
         # print(event_to_return['nearest'])
         return event_to_return
@@ -280,7 +266,7 @@ class EventsDBManager:
         all_ids = self.retrieve_event_ids()
         while True:
             id_random = choice(all_ids)
-            event = self.return_event(id_random)
+            event = self.return_event_no_nearest(id_random)
             if event['large_category'] == cate_map[number]:
                 return event
 
@@ -404,23 +390,23 @@ class EventsDBManager:
 
 if __name__ == "__main__":
 
-    Events = EventsDBManager()
-    # event = Events.return_event(1)# event is in type of dict of an event.
+    eventsDBManager = EventsDBManager()
+    # event = eventsDBManager.return_event_no_nearest(1)# event is in type of dict of an event.
     # print(event)
-    # print(Events.check_database()[:2])
-    # Events.return_random_events()
-    # print(Events.get_tags_statistics())
-    # cata = Events.get_catagories_statistics()
-    # Events.delete_Event_table()
-    # Events.drop_table()
-    # print(Events.check_database())
-    # Events.return_ten_diff_events()
-    # print(Events.number_of_events())
-    # Events.all_ids_of_events()
-    # print(Events.get_large_categoty(2270))
-    diff_events = Events.return_several_events_of_a_cate(1)
+    # print(eventsDBManager.check_database()[:2])
+    # eventsDBManager.return_random_events()
+    # print(eventsDBManager.get_tags_statistics())
+    # cata = eventsDBManager.get_catagories_statistics()
+    # eventsDBManager.delete_Event_table()
+    # eventsDBManager.drop_table()
+    # print(eventsDBManager.check_database())
+    # eventsDBManager.return_ten_diff_events()
+    # print(eventsDBManager.number_of_events())
+    # eventsDBManager.all_ids_of_events()
+    # print(eventsDBManager.get_large_categoty(2270))
+    diff_events = eventsDBManager.return_several_events_of_a_cate(1)
     print(len(diff_events))
     for i in diff_events:
         print(i)
-    # print(Events.get_nearest_available(99812))
-    # print(Events.return_events_by_category(2))
+    # print(eventsDBManager.get_event_with_nearest(99812))
+    # print(eventsDBManager.return_events_by_category(2))

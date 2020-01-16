@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, abort
 from flask import request
 from flask_cors import CORS, cross_origin
 from EventDBManagement import *
-from UserdbManagement import *
+from UserDBManagement import *
 from RecomendationDBManagement import *
 from geopy.geocoders import Nominatim
 from validate_email import validate_email
@@ -15,9 +15,9 @@ app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources=url_rsc)
 
-user_manager = UserdbManagement()
+user_manager = UserDBManager()
 event_manager = EventsDBManager()
-rcmd_manager = RecomendationDBManagement()
+rcmd_manager = RecomendationDBManager()
 geolocator = Nominatim(user_agent="Hangout Recommendation")
 
 
@@ -51,7 +51,7 @@ def get_event(event_id=0):
     :return:
     """
     # event = list(filter(lambda t: t['event_id'] == event_id, event_manager.check_database()))
-    single_event = event_manager.return_event(event_id)
+    single_event = [event_manager.get_event_with_nearest(event_id)]
     # 有的话，就返回列表形式包裹的这个元素，没有的话就报错404
     if len(single_event) == 0:
         abort(404)
@@ -78,7 +78,8 @@ def get_event_by_category(category):
     Frontend gets a list of events by selected category
     :return:
     """
-    cate_event = event_manager.return_several_events_of_a_cate(category, number_of_events=10)
+    cate_type = cate_re_map[category]
+    cate_event = event_manager.return_several_events_of_a_cate(cate_type, number_of_events=10)
     if len(cate_event) == 0 or category == '':
         abort(404)
     return jsonify({'event': cate_event})

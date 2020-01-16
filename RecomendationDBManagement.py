@@ -1,10 +1,8 @@
 import sqlite3
+from BackendAPIStaticList import singleton
 
-
-class RecomendationDBManagement:
-
-    management_instances_created = 0
-
+@singleton
+class RecomendationDBManager:
     def __init__(self):
 
         self.check_number_of_instances()
@@ -16,17 +14,6 @@ class RecomendationDBManagement:
         """
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
-
-    def check_number_of_instances(self):
-
-        """
-            To avoid conflicts we only generate a single instance of each db manager
-        """
-
-        if RecomendationDBManagement.management_instances_created != 0:
-            raise ValueError("There can only be one database manager")
-        else:
-            RecomendationDBManagement.management_instances_created = RecomendationDBManagement.management_instances_created + 1
 
     def add_recommendation(self, user_id, event_id, score):
 

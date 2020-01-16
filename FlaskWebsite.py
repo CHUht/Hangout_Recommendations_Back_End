@@ -2,9 +2,9 @@ from flask import *
 import random as rd
 from HTMLGenerator import HTMLGenerator
 import os
-from UserdbManagement import UserdbManagement
-from EventDBManagement import EventsDBManager
-from UserRatingDb import UserRatings
+# from UserdbManagement import UserdbManagement
+# from EventDBManagement import EventsDBManager
+# from UserRatingDb import UserRatings
 from geopy.geocoders import Nominatim
 
 class Server:
