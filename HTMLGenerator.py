@@ -17,7 +17,7 @@ class HTMLGenerator:
             event_id = rd.choice(event_ids)
             data.append(events.return_event(event_id))
 
-        return render_template("home_page.html", data=data)
+        return render_template("showjson.html", data=data)
 
     @classmethod
     def generate_event_page(cls, events, event_id):
@@ -34,7 +34,7 @@ class HTMLGenerator:
 
     @classmethod
     def generate_sing_up_page(cls, UserDB, alert_address=0, alert_username=0):
-        return render_template("sing_up_page.html", data=UserDB.return_usernames(), alert_address=alert_address
+        return render_template("sign_up_page.html", data=UserDB.return_usernames(), alert_address=alert_address
                                , alert_username=alert_username)
 
     @classmethod

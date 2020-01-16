@@ -1,5 +1,5 @@
-from flask import Flask, render_template, jsonify, abort
-from flask import request
+from flask import Flask, render_template, jsonify, abort, redirect
+from flask import request, url_for
 from flask_cors import CORS, cross_origin
 from EventDBManagement import *
 from UserDBManagement import *
@@ -13,7 +13,8 @@ from email.header import Header
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
-cors = CORS(app, resources=url_rsc, methods=['GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'])
+cors = CORS(app, resources=url_rsc, support_credentials=True,
+            methods=['GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'])
 
 user_manager = UserDBManager()
 event_manager = EventsDBManager()
@@ -21,15 +22,15 @@ rcmd_manager = RecomendationDBManager()
 geolocator = Nominatim(user_agent="Hangout Recommendation")
 
 
-@app.errorhandler(IndexError)
-@app.errorhandler(TypeError)
-def all_exception_handler(e):
-    return 'Back end Error raised'
+# @app.errorhandler(IndexError)
+# @app.errorhandler(TypeError)
+# def all_exception_handler(e):
+#     return jsonify({'message': 'Back end Error raised'})
 
 
 @app.errorhandler(404)
 def all_exception_handler(e):
-    return '404 not found'
+    return jsonify({'message': '404 not found'})
 
 
 @app.route('/')
@@ -39,7 +40,7 @@ def index():
     root url, no use
     :return:
     """
-    return jsonify({'event': 'Keep Calm & Visit Paris'})
+    return jsonify({'Welcome': 'Keep Calm & Visit Paris'})
 
 
 @app.route('/api/v1.0/Events/<int:event_id>', methods=['GET'])
@@ -79,7 +80,7 @@ def get_event_by_category(category):
     :return:
     """
     cate_type = cate_re_map[category]
-    cate_event = event_manager.return_several_events_of_a_cate(cate_type, number_of_events=10)
+    cate_event = event_manager.return_several_events_of_a_cate(cate_type, number_of_events=20)
     if len(cate_event) == 0 or category == '':
         abort(404)
     return jsonify({'event': cate_event})
@@ -88,14 +89,21 @@ def get_event_by_category(category):
 @app.route('/api/v1.0/Users/login', methods=['GET', 'POST'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_login():
-    # user_info = {}
-    if request.method == 'POST':
+    if request.method == 'GET':
+        return render_template('log_in.html')
+    elif request.method == 'POST':
         if not request.json or 'uname' not in request.json:
             abort(400)
         user_info = {
                 'uname': request.json['uname'],
                 'pword': request.json['pword']
         }
+        # code for debugging #
+        # user_info = {
+        #     'uname': request.form.get('uname'),
+        #     'pword': request.form.get('pword')
+        # }
+        print(user_info)
         if user_info['uname'] == '':
             return jsonify({'user_online': user_info, 'login state': False,
                             'description': 'user name should not be vacant'}), 201
@@ -108,7 +116,6 @@ def user_login():
         else:
             return jsonify({'user_online': user_info, 'state': False,
                             'description': 'wrong password, try again'}), 201
-    return render_template('log_in.html')
 
 
 @app.route('/api/v1.0/Users/<uname>', methods=['GET', 'PUT'])
@@ -121,7 +128,7 @@ def user_profile(uname=None):
         preferred_events_id = rcmd_manager.get_recommendations_for_user(user_manager.return_user_id(uname))
         preferred_events = []
         for pair in preferred_events_id:
-            preferred_events.append({'activity': event_manager.return_event(pair[0]),
+            preferred_events.append({'activity': event_manager.get_event_with_nearest(pair[0]),
                                     'score': pair[1]})
         return jsonify({'user': user, 'event': preferred_events})
     elif request.method == 'PUT':
@@ -130,39 +137,50 @@ def user_profile(uname=None):
         # to do
 
 
-@app.route('/api/v1.0/Users/signup', methods=['POST'])
+@app.route('/api/v1.0/Users/signup', methods=['GET', 'POST'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_signup():
-    rj = request.json
-    if not rj or 'uname' not in rj:
-        abort(400)
-    if rj['uname'] == '' or rj['pword'] == '' or rj['pword_r'] == '' or rj['email'] == '':
-        return jsonify({'user_info': {}, 'signup state': False,
-                        'description': 'obligatory field(s) missed'}), 201
-    if rj['pword'] != rj['pword_r']:
-        return jsonify({'user_info': {}, 'signup state': False,
-                        'description': 'password verification failed'}), 201
-    if not validate_email(rj['email'], verify=True):
-        return jsonify({'user_info': {}, 'signup state': False,
-                        'description': 'email not valid'}), 201
-    if request.json['uname'] in user_manager.return_usernames():
-        return jsonify({'user_info': {}, 'signup state': False,
-                        'description': 'user name already existed'}), 201
-    for u in user_manager.check_database():
-        if request.json['email'] == u['email']:
+    if request.method == 'GET':
+        return render_template('sign_up_page.html')
+    elif request.method == 'POST':
+        rj = {
+            'uname': request.form.get('new_uname'),
+            'pword': request.form.get('new_psw'),
+            'pword_r': request.form.get('rep_psw'),
+            'email': request.form.get('email'),
+            'address': request.form.get('adrs'),
+            'city': request.form.get('city')
+        }
+        # rj = request.form.get
+        if not rj or 'uname' not in rj:
+            abort(400)
+        if rj['uname'] == '' or rj['pword'] == '' or rj['pword_r'] == '' or rj['email'] == '':
             return jsonify({'user_info': {}, 'signup state': False,
-                            'description': 'email already occupied by another account'}), 201
-    user = {
-        'uname': rj['uname'],
-        'email': rj['email'],
-        'city': rj['city']
-    }
-    user_manager.create_new_user(
-        rj['uname'], rj['pword'], rj['email'], rj['address'], rj['city'], rj['latitude'], rj['longitude']
-    )
+                            'description': 'obligatory field(s) missed'}), 201
+        if rj['pword'] != rj['pword_r']:
+            return jsonify({'user_info': {}, 'signup state': False,
+                            'description': 'password verification failed'}), 201
+        if not validate_email(rj['email'], verify=True):
+            return jsonify({'user_info': {}, 'signup state': False,
+                            'description': 'email not valid'}), 201
+        if request.json['uname'] in user_manager.return_usernames():
+            return jsonify({'user_info': {}, 'signup state': False,
+                            'description': 'user name already existed'}), 201
+        for u in user_manager.check_database():
+            if request.json['email'] == u[5]:
+                return jsonify({'user_info': {}, 'signup state': False,
+                                'description': 'email already occupied by another account'}), 201
+        user = {
+            'uname': rj['uname'],
+            'email': rj['email'],
+            'city': rj['city']
+        }
+        user_manager.create_new_user(
+            rj['uname'], rj['pword'], rj['email'], rj['address'], rj['city'], rj['latitude'], rj['longitude']
+        )
 
-    return jsonify({'user_info': user, 'state': True,
-                    'description': 'successfully signed up. Start Visit Paris now!'})
+        return jsonify({'user_info': user, 'state': True,
+                        'description': 'successfully signed up. Start Visit Paris now!'})
 
 
 @app.route('/api/v1.0/Users/choose_tags', methods=['PUT'])

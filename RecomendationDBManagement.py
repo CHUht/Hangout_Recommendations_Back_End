@@ -20,7 +20,7 @@ class RecomendationDBManager:
         """
 
         sql_command = """
-                    INSERT INTO UserRecommendations(user_id, event_id, rating)
+                    INSERT INTO UserRecommendation(user_id, event_id, score)
                     VALUES ( ? , ? , ?);
                 """
 
@@ -36,8 +36,8 @@ class RecomendationDBManager:
 
         sql_command = """
                        DELETE FROM UserRating 
-                       WHERE UserRecommendations.user_id = '{0}'
-                       AND UserRecommendations.event_id = '{1}'
+                       WHERE UserRecommendation.user_id = '{0}'
+                       AND UserRecommendation.event_id = '{1}'
                     """.format(user_id, event_id)
 
         self.controller.execute(sql_command)
@@ -53,7 +53,7 @@ class RecomendationDBManager:
 
         sql_command = """
                         SELECT event_id, score
-                        FROM UserRecommendations
+                        FROM UserRecommendation
                         WHERE user_id = '{0}'
                         ORDER BY score
                     """.format(user_id)
@@ -97,5 +97,6 @@ class RecomendationDBManager:
         self.connection.commit()
 
 if __name__ == "__main__":
+    rmanager = RecomendationDBManager()
+    rmanager.add_recommendation(0, 2270,5)
 
-    pass

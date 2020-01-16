@@ -45,7 +45,7 @@ class UserDBManager:
         self.last_id = self.last_id + 1
         sql_command = """
             INSERT INTO Users(user_id, uname, pword, email, address, city)
-            VALUES ( ?, ?, ?, ?, ?, ?, ? );
+            VALUES ( ?, ?, ?, ?, ?, ? );
         """
 
         values = (self.last_id, uname, psw, address, city, email)
@@ -66,7 +66,7 @@ class UserDBManager:
                     WHERE uname='{0}'
                 """.format(uname)
         self.controller.execute(sql_command)
-        return self.controller.fetchall()[0]
+        return self.controller.fetchall()
 
 
     def return_user_id(self, uname):
@@ -171,5 +171,7 @@ class UserDBManager:
 
 if __name__ == "__main__":
     userDBManager = UserDBManager()
-    userDBManager.check_database()
-    # userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')
+    # userDBManager.drop_table()
+    userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')
+    print(userDBManager.check_database())
+
