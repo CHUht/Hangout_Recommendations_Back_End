@@ -49,7 +49,11 @@ def create_databases():
                 'website': 'VARCHAR(50)',
                 'cover_url':'VARCHAR(50)',
                 'latitude': 'FLOAT(8)',
-                'longitude': 'FLOAT(8)'}
+                'longitude': 'FLOAT(8)',
+                'occurrences':'VARCHAR(1000)',
+                'large_category':'VARCHAR(50)',
+                'small_category':'VARCHAR(50)',
+            }
     databases.append(('Events',att1))
 
     att2 = {'user_id':'INTEGER PRIMARY KEY',
@@ -72,14 +76,6 @@ def create_databases():
     att5 = {'user_id': 'INTEGER',
                 'event_id': 'INTEGER'}
     databases.append(('UserLike',att5))
-
-    att6 = {'event_id': 'INTEGER',
-                'catagory_id': 'INTEGER'}
-    databases.append(('Event_Catagory',att6))
-
-    att7 = {'catagory_id': 'INTEGER',
-            'catagoty_name':'VARCHAR(50)'}
-    databases.append(('Catagoty',att7))
 
     # print(databases)
     for i in range(len(databases)):

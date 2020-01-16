@@ -68,7 +68,7 @@ class RecomendationDBManagement:
 
         sql_command = """
                         SELECT event_id, score
-                        FROM UserRecommendation
+                        FROM UserRecommendations
                         WHERE user_id = '{0}'
                         ORDER BY score
                     """.format(user_id)

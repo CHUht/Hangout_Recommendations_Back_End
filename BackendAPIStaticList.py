@@ -1,6 +1,6 @@
 import socket
 
-Cate_map = {
+cate_map = {
         1: 'Expositions',
         2: 'Animations',
         3: 'Spectacles',
@@ -38,3 +38,11 @@ r'/Users/send_link_by_email'[POST]: user重置密码时使用， （待议）
 r'/Users/reset_password'[PUT]: 重置user密码，（待议） 
 r'/Events/search'[POST]: 收取搜索词key-value pairs { 'title': '...', 'address_city': '...', ...}, 返回找到的events概览，找不到则抛出404
 """
+
+jour_semaine = {'0':'dimanche',
+                '1':'lundi',
+                '2':'mardi',
+                '3':'mercredi',
+                '4':'jeudi',
+                '5':'vendredi',
+                '6':'samedi'}

@@ -48,7 +48,7 @@ class UserdbManagement:
             self.last_id = all_ids[-1][0]
 
 
-    def create_new_user(self, uname, psw, email, address, city, latitute, longitude):
+    def create_new_user(self, uname, psw, address, city, latitute, longitude):
 
         """
             This function adds a new user to the user db table!
@@ -58,11 +58,11 @@ class UserdbManagement:
 
         self.last_id = self.last_id + 1
         sql_command = """
-            INSERT INTO Users(user_id, uname, pword, email, address, city, latitude, longitude)
-            VALUES ( ?, ?, ?, ?, ?, ?, ?, ? );
+            INSERT INTO Users(user_id, uname, pword, address, city, latitude, longitude)
+            VALUES ( ?, ?, ?, ?, ?, ?, ? );
         """
 
-        values = (self.last_id, uname, psw, email, address, city, latitute, longitude)
+        values = (self.last_id, uname, psw, address, city, latitute, longitude)
         self.controller.execute(sql_command, values)
         self.connection.commit()
 
@@ -149,7 +149,8 @@ class UserdbManagement:
 
         print('checke_database')
 
-        return self.controller.fetchall()
+        for col in self.controller.fetchall():
+            print(col)
 
     def delete_user_table(self):
         """
@@ -183,14 +184,14 @@ class UserdbManagement:
 
 if __name__ == "__main__":
     UserDB = UserdbManagement()
+    UserDB.check_database()
+    UserDB.create_new_user('Li', 'nopw', 123, 12)
+    UserDB.create_new_user('Fafa', '123', 11, 22)
+    print('usernames')
+    print(UserDB.return_usernames())
+    print('fafa_re')
+    print(UserDB.return_user_data("Fafa"))
+    print('fafa_123_re')
+    print(UserDB.user_authentication("Fafa","123"))
+    print('all_list')
     print(UserDB.check_database())
-    # UserDB.create_new_user('Li', 'nopw', 123, 12)
-    # UserDB.create_new_user('Fafa', '123', 11, 22)
-    # print('usernames')
-    # print(UserDB.return_usernames())
-    # print('fafa_re')
-    # print(UserDB.return_user_data("Fafa"))
-    # print('fafa_123_re')
-    # print(UserDB.user_authentication("Fafa","123"))
-    # print('all_list')
-    # print(UserDB.check_database())

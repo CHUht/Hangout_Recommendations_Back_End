@@ -161,13 +161,25 @@ class UserRatings:
                     """
         self.controller.execute(sql_command)
         self.connection.commit()
+    def drop_table(self):
+        """
+            Created for debuging
+            Drops the table!
+        """
+
+        sql_command = """
+                    DROP TABLE UserRating;
+                """
+        self.connection.execute(sql_command)
 
 if __name__ == "__main__":
 
     userRatings = UserRatings()
-    userRatings.check_database()
-    userRatings.add_rating(0,0,1)
-    userRatings.add_rating(0,1,2)
-    userRatings.add_rating(0,2,5)
-    print('get_rating_from_user for user 0 ')
-    print(userRatings.get_ratings_from_user(0))
+    # userRatings.check_database()
+    # userRatings.add_rating(0,0,1)
+    # userRatings.add_rating(0,1,2)
+    # userRatings.add_rating(0,2,5)
+    # print('get_rating_from_user for user 0 ')
+    # print(userRatings.get_ratings_from_user(0))
+    userRatings.delete_ratings_table()
+    userRatings.drop_table()

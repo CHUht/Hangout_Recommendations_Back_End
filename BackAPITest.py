@@ -7,6 +7,9 @@ from RecomendationDBManagement import *
 from geopy.geocoders import Nominatim
 from validate_email import validate_email
 from BackendAPIStaticList import *
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -18,6 +21,17 @@ rcmd_manager = RecomendationDBManagement()
 geolocator = Nominatim(user_agent="Hangout Recommendation")
 
 
+@app.errorhandler(IndexError)
+@app.errorhandler(TypeError)
+def all_exception_handler(e):
+    return 'Back end Error raised'
+
+
+@app.errorhandler(404)
+def all_exception_handler(e):
+    return '404 not found'
+
+
 @app.route('/')
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def index():
@@ -25,7 +39,7 @@ def index():
     root url, no use
     :return:
     """
-    return render_template('home_page.html')
+    return jsonify({'event': 'Keep Calm & Visit Paris'})
 
 
 @app.route('/api/v1.0/Events/<int:event_id>', methods=['GET'])
@@ -51,7 +65,7 @@ def get_random_event():
     Frontend gets a list of events for homepage, call 404 error if not found
     :return:
     """
-    rdm_event = event_manager.return_ten_diff_events()  # to do
+    rdm_event = event_manager.return_several_diff_events(number_of_events=20)
     if len(rdm_event) == 0:
         abort(404)
     return jsonify({'event': rdm_event})
@@ -64,7 +78,7 @@ def get_event_by_category(category):
     Frontend gets a list of events by selected category
     :return:
     """
-    cate_event = event_manager.return_events_by_category(category)  # to do
+    cate_event = event_manager.return_several_events_of_a_cate(category, number_of_events=10)
     if len(cate_event) == 0 or category == '':
         abort(404)
     return jsonify({'event': cate_event})
@@ -73,21 +87,27 @@ def get_event_by_category(category):
 @app.route('/api/v1.0/Users/login', methods=['GET', 'POST'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_login():
-    user_info = {}
+    # user_info = {}
     if request.method == 'POST':
-        if not request.json or 'user_id' not in request.json:
+        if not request.json or 'uname' not in request.json:
             abort(400)
         user_info = {
-                'user_id': request.json['user_id'],
+                'uname': request.json['uname'],
                 'pword': request.json['pword']
         }
-        if user_manager.user_authentication(user_info['user_id'], user_info['pword']):
+        if user_info['uname'] == '':
+            return jsonify({'user_online': user_info, 'login state': False,
+                            'description': 'user name should not be vacant'}), 201
+        if not user_manager.return_user_data(user_info['uname']):
+            return jsonify({'user_online': user_info, 'login state': False,
+                            'description': 'user not found'}), 201
+        if user_manager.user_authentication(user_info['uname'], user_info['pword']):
             return jsonify({'user_online': user_info, 'login state': True,
                             'description': 'successfully log in'}), 201
         else:
             return jsonify({'user_online': user_info, 'state': False,
-                            'description': 'wrong password'}), 201
-    return jsonify({'user_online': user_info})
+                            'description': 'wrong password, try again'}), 201
+    return render_template('log_in.html')
 
 
 @app.route('/api/v1.0/Users/<uname>', methods=['GET', 'PUT'])
@@ -167,7 +187,23 @@ def user_post_email():
 
 
 def send_email(email, link):
-    return
+    sender = 'keepcalmvisitparis@gmail.com'
+    receivers = [email]  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
+
+    # 三个参数：第一个为文本内容，第二个 plain 设置文本格式，第三个 utf-8 设置编码
+    message = MIMEText('EMAIL SENDING TEST: ' + link, 'plain', 'utf-8')
+    message['From'] = Header("KeepCalm&VisitParis", 'utf-8')  # 发送者
+    message['To'] = Header(email, 'utf-8')  # 接收者
+    message['Subject'] = Header('API email', 'utf-8')
+
+    try:
+        smtpObj = smtplib.SMTP_SSL()
+        smtpObj.connect('smtp.gmail.com', 465)
+        smtpObj.login('lujiahao8146@gmail.com', 'GOOGLE274@')
+        smtpObj.sendmail(sender, receivers, message.as_string())
+        print("successfully sent the email")
+    except smtplib.SMTPException:
+        print("Error: email not sent")
     # to do
 
 
@@ -185,6 +221,7 @@ def event_search():
         if not request.json:
             abort(400)
         search = request.json
+
         # to do
         events = []
         return jsonify({'events': events})
@@ -192,9 +229,8 @@ def event_search():
         abort(404)
 
 
-
-
 if __name__ == '__main__':
 
     print(host)
     app.run(debug=True, host=host, port=8080)
+    # send_email('jiahao.lu@student-cs.fr','www.testlink.com')
