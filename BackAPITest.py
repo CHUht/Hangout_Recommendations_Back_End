@@ -13,7 +13,7 @@ from email.header import Header
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
-cors = CORS(app, resources=url_rsc)
+cors = CORS(app, resources=url_rsc, methods=['GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'])
 
 user_manager = UserDBManager()
 event_manager = EventsDBManager()

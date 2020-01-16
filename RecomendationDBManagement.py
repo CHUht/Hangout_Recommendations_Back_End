@@ -5,8 +5,6 @@ from BackendAPIStaticList import singleton
 class RecomendationDBManager:
     def __init__(self):
 
-        self.check_number_of_instances()
-
         """
             Here we start all the points necessary to start this class
             We need to connect to the database
