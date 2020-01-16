@@ -15,13 +15,13 @@ class HTMLGenerator:
         data = []
         for i in range(10):
             event_id = rd.choice(event_ids)
-            data.append(events.return_event(event_id))
+            data.append(events.return_event_no_nearest(event_id))
 
         return render_template("home_page.html", data=data)
 
     @classmethod
     def generate_event_page(cls, events, event_id):
-        event_data = events.return_event(event_id)
+        event_data = events.return_event_no_nearest(event_id)
         return render_template("event_page.html", data=event_data)
 
     @classmethod
@@ -54,7 +54,7 @@ class HTMLGenerator:
         for i in range(3):
             list_event_id = rd.randint(0,len(event_ids) - 1)
             event_id = event_ids.pop(list_event_id)
-            data.append(Events.return_event(event_id))
+            data.append(Events.return_event_no_nearest(event_id))
 
             if len(event_ids) == 0:
                 break
