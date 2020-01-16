@@ -2,9 +2,9 @@ from flask import *
 import random as rd
 from HTMLGenerator import HTMLGenerator
 import os
-from UserDBManagement import UserDBManager
-from EventDBManagement import EventsDBManager
-from UserRatingDBManagement import UserRatingManager
+# from UserdbManagement import UserdbManagement
+# from EventDBManagement import EventsDBManager
+# from UserRatingDb import UserRatings
 from geopy.geocoders import Nominatim
 
 class Server:
@@ -27,9 +27,9 @@ class Server:
             One manages events
             The final manages the ratings from users and events
         """
-        UserDB = UserDBManager()
+        UserDB = UserdbManagement()
         Events = EventsDBManager()
-        Ratings = UserRatingManager()
+        Ratings = UserRatings()
         geolocator = Nominatim(user_agent="Hangout Recommendation")
 
         """

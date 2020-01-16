@@ -1,5 +1,5 @@
 import sqlite3
-from ToolFunctions import singleton
+from BackendAPIStaticList import singleton
 
 @singleton
 class UserDBManager:
@@ -164,7 +164,7 @@ class UserDBManager:
         """
 
         sql_command = """
-                    DROP TABLE Userdatabase;
+                    DROP TABLE Users;
                 """
         self.connection.execute(sql_command)
 

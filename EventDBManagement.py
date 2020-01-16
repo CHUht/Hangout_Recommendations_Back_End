@@ -3,7 +3,7 @@ import re
 from random import choice
 from time import *
 import datetime
-from ToolFunctions import *
+from BackendAPIStaticList import *
 
 @singleton
 class EventsDBManager:
