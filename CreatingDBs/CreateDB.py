@@ -78,6 +78,9 @@ def create_databases():
                 'event_id': 'INTEGER'}
     databases.append(('UserLike',att5))
 
+    att6 = {'user_id': 'INTEGER',
+                'cate_type': 'INTEGER'}
+    databases.append(('UserCates',att6))
     # print(databases)
     for i in range(len(databases)):
         cdb = CreatDataBase(databases[i][0])
