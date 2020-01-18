@@ -9,9 +9,14 @@ class UserDBManager:
             We need to connect to the database
             and get the last id!
         """
+        self.set_last_id()
+
+    def dbconnect(self):
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
-        self.set_last_id()
+
+    def dbdeconnect(self):
+        self.connection.close()
 
     def set_last_id(self):
 
@@ -19,13 +24,14 @@ class UserDBManager:
             In this function we find the last id on the database
             this is done since we need to assign a new
         """
-
+        self.dbconnect()
         sql_command = """
                     SELECT user_id
                     FROM Users
                 """
         self.controller.execute(sql_command)
         all_ids = self.controller.fetchall()
+        self.dbdeconnect()
         # print('all_ids')
         # print(all_ids)
         if len(all_ids) == 0:
@@ -41,7 +47,7 @@ class UserDBManager:
             It takes the given username and password to create it
             We assume the check for unique usernames is done at the front end level
         """
-
+        self.dbconnect()
         self.last_id = self.last_id + 1
         sql_command = """
             INSERT INTO Users(user_id, uname, pword, email, address, city)
@@ -51,6 +57,7 @@ class UserDBManager:
         values = (self.last_id, uname, psw, address, city, email)
         self.controller.execute(sql_command, values)
         self.connection.commit()
+        self.dbdeconnect()
 
 
     def return_user_data(self, uname):
@@ -60,14 +67,16 @@ class UserDBManager:
             It needs other database classes to work with it!
             For now just return the basic stuff
         """
+        self.dbconnect()
         sql_command = """
                     SELECT *
                     FROM Users
                     WHERE uname='{0}'
                 """.format(uname)
         self.controller.execute(sql_command)
-        return self.controller.fetchall()[0]
-
+        result = self.controller.fetchall()[0]
+        self.dbdeconnect()
+        return result
 
     def return_user_id(self, uname):
 
@@ -76,6 +85,7 @@ class UserDBManager:
             The user names must all be unique
             We check the creation of usernames to avoid duplicates
         """
+        self.dbconnect()
         sql_command = """
                             SELECT user_id
                             FROM Users
@@ -83,6 +93,7 @@ class UserDBManager:
                         """.format(uname)
         self.controller.execute(sql_command)
         user_id = self.controller.fetchall()
+        self.dbdeconnect()
 
         if(len(user_id) != 1):
             raise Exception("Fatal error occurred two ids for one username")
@@ -95,7 +106,7 @@ class UserDBManager:
             This function returns a list with all usernames
             This is done in the server level to check if there are any matching usernames
         """
-
+        self.dbconnect()
         sql_command = """
                     SELECT uname
                     FROM Users
@@ -104,6 +115,7 @@ class UserDBManager:
         unames = []
         for value in self.controller.fetchall():
             unames.append(value[0])
+        self.dbdeconnect()
         return unames
 
 
@@ -112,13 +124,34 @@ class UserDBManager:
             This function returns true if the username matches the password
             False otherwise
         """
+        self.dbconnect()
         sql_command = """
-                    SELECT uname, pword
+                    SELECT uname, pword 
                     FROM Users
                     WHERE uname = '{0}'
                 """.format(uname)
         self.controller.execute(sql_command)
         compare = self.controller.fetchall()
+        self.dbdeconnect()
+        if password == compare[0][1]:
+            return True
+        else:
+            return False
+
+    def email_authentication(self, email, password):
+        """
+            This function returns true if the username matches the password
+            False otherwise
+        """
+        self.dbconnect()
+        sql_command = """
+                    SELECT email, pword
+                    FROM Users
+                    WHERE email = '{0}'
+                """.format(email)
+        self.controller.execute(sql_command)
+        compare = self.controller.fetchall()
+        self.dbdeconnect()
         if password == compare[0][1]:
             return True
         else:
@@ -127,6 +160,7 @@ class UserDBManager:
 
     def check_database(self):
         # Returns everything in it
+        self.dbconnect()
         sql_command = """
                     SELECT *
                     FROM Users
@@ -137,14 +171,16 @@ class UserDBManager:
 
         # for col in self.controller.fetchall():
         #     print(col)
-        return self.controller.fetchall()
+        result = self.controller.fetchall()
+        self.dbdeconnect()
+        return result
 
     def delete_user_table(self):
         """
             Created for debuging
             Deletes the data in the user table!
         """
-
+        self.dbconnect()
         sql_command = """
                         DELETE FROM Users;
                     """
@@ -156,18 +192,19 @@ class UserDBManager:
                     """
         self.controller.execute(sql_command)
         self.connection.commit()
+        self.dbdeconnect()
 
     def drop_table(self):
         """
             Created for debuging
             Drops the table!
         """
-
+        self.dbconnect()
         sql_command = """
                     DROP TABLE Users;
                 """
         self.connection.execute(sql_command)
-
+        self.dbdeconnect()
 
 if __name__ == "__main__":
     userDBManager = UserDBManager()
@@ -177,3 +214,4 @@ if __name__ == "__main__":
     # userDBManager.delete_user_table()
     # userDBManager.drop_table()
     # print(userDBManager.return_usernames())
+    # print(userDBManager.check_database())
