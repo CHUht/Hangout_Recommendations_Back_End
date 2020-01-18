@@ -67,20 +67,19 @@ def get_random_event():
     :return:
     """
     rdm_event = event_manager.return_several_diff_events(number_of_events=20)
-    if len(rdm_event) == 0:
+    if not rdm_event:
         abort(404)
     return jsonify({'event': rdm_event})
 
 
-@app.route('/api/v1.0/Events/Categories/<category>', methods=['GET'])
+@app.route('/api/v1.0/Events/Categories/<int:category>', methods=['GET'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def get_event_by_category(category):
     """
     Frontend gets a list of events by selected category
     :return:
     """
-    cate_type = cate_re_map[category]
-    cate_event = event_manager.return_several_events_of_a_cate(cate_type, number_of_events=20)
+    cate_event = event_manager.return_several_events_of_a_cate(category, number_of_events=20)
     if len(cate_event) == 0 or category == '':
         abort(404)
     return jsonify({'event': cate_event})
@@ -103,7 +102,7 @@ def user_login():
         #     'uname': request.form.get('uname'),
         #     'pword': request.form.get('pword')
         # }
-        print(user_info)
+        # print(request.json)
         if user_info['uname'] == '':
             return jsonify({'user_online': user_info, 'login state': False,
                             'description': 'user name should not be vacant'}), 201
@@ -143,18 +142,21 @@ def user_signup():
     if request.method == 'GET':
         return render_template('sign_up_page.html')
     elif request.method == 'POST':
-        rj = {
-            'uname': request.form.get('new_uname'),
-            'pword': request.form.get('new_psw'),
-            'pword_r': request.form.get('rep_psw'),
-            'email': request.form.get('email'),
-            'address': request.form.get('adrs'),
-            'city': request.form.get('city')
-        }
-        # rj = request.form.get
+        # code for debugging #
+        # rj = {
+        #     'uname': request.form.get('new_uname'),
+        #     'pword': request.form.get('new_psw'),
+        #     'pword_r': request.form.get('rep_psw'),
+        #     'email': request.form.get('email'),
+        #     'address': request.form.get('adrs'),
+        #     'city': request.form.get('city')
+        # }
+        # print(rj)
+        rj = request.json
         if not rj or 'uname' not in rj:
+            print('empty file')
             abort(400)
-        if rj['uname'] == '' or rj['pword'] == '' or rj['pword_r'] == '' or rj['email'] == '':
+        if not rj['uname'] or not rj['pword'] or not rj['pword_r'] or not rj['email']:
             return jsonify({'user_info': {}, 'signup state': False,
                             'description': 'obligatory field(s) missed'}), 201
         if rj['pword'] != rj['pword_r']:
@@ -163,11 +165,11 @@ def user_signup():
         if not validate_email(rj['email'], verify=True):
             return jsonify({'user_info': {}, 'signup state': False,
                             'description': 'email not valid'}), 201
-        if request.json['uname'] in user_manager.return_usernames():
+        if rj['uname'] in user_manager.return_usernames():
             return jsonify({'user_info': {}, 'signup state': False,
                             'description': 'user name already existed'}), 201
         for u in user_manager.check_database():
-            if request.json['email'] == u[5]:
+            if rj['email'] == u[5]:
                 return jsonify({'user_info': {}, 'signup state': False,
                                 'description': 'email already occupied by another account'}), 201
         user = {
@@ -176,11 +178,11 @@ def user_signup():
             'city': rj['city']
         }
         user_manager.create_new_user(
-            rj['uname'], rj['pword'], rj['email'], rj['address'], rj['city'], rj['latitude'], rj['longitude']
+            rj['uname'], rj['pword'], rj['email'], rj['address'], rj['city']
         )
-
+        send_email(rj['email'],'Thank you for your subscription')
         return jsonify({'user_info': user, 'state': True,
-                        'description': 'successfully signed up. Start Visit Paris now!'})
+                        'description': 'successfully signed up. Start Visit Paris now!'}), 201
 
 
 @app.route('/api/v1.0/Users/choose_tags', methods=['PUT'])
@@ -207,12 +209,11 @@ def user_post_email():
 
 def send_email(email, link):
     sender = 'keepcalmvisitparis@gmail.com'
-    receivers = [email]  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
+    receivers = [email]
 
-    # 三个参数：第一个为文本内容，第二个 plain 设置文本格式，第三个 utf-8 设置编码
     message = MIMEText('EMAIL SENDING TEST: ' + link, 'plain', 'utf-8')
-    message['From'] = Header("KeepCalm&VisitParis", 'utf-8')  # 发送者
-    message['To'] = Header(email, 'utf-8')  # 接收者
+    message['From'] = Header("KeepCalm&VisitParis", 'utf-8')
+    message['To'] = Header(email, 'utf-8')
     message['Subject'] = Header('API email', 'utf-8')
 
     try:
@@ -223,6 +224,7 @@ def send_email(email, link):
         print("successfully sent the email")
     except smtplib.SMTPException:
         print("Error: email not sent")
+        abort(404)
     # to do
 
 
@@ -239,11 +241,13 @@ def event_search():
     if request.method == 'POST':
         if not request.json:
             abort(400)
-        search = request.json
-
-        # to do
-        events = []
-        return jsonify({'events': events})
+        search = request.json['keywords']
+        if isinstance(search, tuple) or isinstance(search, list) or isinstance(search, dict):
+            abort(404)
+        search_result = event_manager.search_key_words(search)
+        if not search_result:
+            abort(404)
+        return jsonify({'events': search_result})
     else:
         abort(404)
 

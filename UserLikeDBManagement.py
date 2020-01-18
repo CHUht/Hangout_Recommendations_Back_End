@@ -32,8 +32,8 @@ class UserLikeManager:
 
         self.controller.execute(sql_command)
         existing_event_like = self.controller.fetchall()
-        print('existing_event_like')
-        print(existing_event_like)
+        # print('existing_event_like')
+        # print(existing_event_like)
         if len(existing_event_like) == 0:
             sql_command = """
                         INSERT INTO UserLike(user_id, event_id)
@@ -66,7 +66,7 @@ class UserLikeManager:
         self.controller.execute(sql_command)
         self.connection.commit()
 
-    def get_likes_from_user(self, user_id):
+    def get_likes_id_from_user(self, user_id):
 
         """
             This function returns all event likes from a specific user
@@ -85,8 +85,12 @@ class UserLikeManager:
         self.controller.execute(sql_command)
 
         likes = self.controller.fetchall()
-        return likes
+        print(likes)
+        for i in range(len(likes)):
+            return likes
 
+    def return_like_events_from_user(self,user_id):
+        self.get_likes_id_from_user()
 
     def check_database(self):
 
@@ -136,5 +140,6 @@ class UserLikeManager:
 if __name__ == "__main__":
 
     userLikeManager = UserLikeManager()
-    userLikeManager2 = UserLikeManager()
-    print(userLikeManager,userLikeManager2)
+    userLikeManager.add_like(1,2)
+    userLikeManager.add_like(2,3)
+    userLikeManager.get_likes_id_from_user(1)

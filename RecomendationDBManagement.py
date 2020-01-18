@@ -20,7 +20,7 @@ class RecomendationDBManager:
         """
 
         sql_command = """
-                    INSERT INTO UserRecommendation(user_id, event_id, score)
+                    INSERT INTO UserRecommendations(user_id, event_id, rating)
                     VALUES ( ? , ? , ?);
                 """
 

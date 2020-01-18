@@ -171,7 +171,11 @@ class UserDBManager:
 
 if __name__ == "__main__":
     userDBManager = UserDBManager()
+    # print(userDBManager.check_database())
+    # userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')
+    # userDBManager.create_new_user('Lu','withpw','jiaohao.li@student-cs.fr')
+    # userDBManager.delete_user_table()
     # userDBManager.drop_table()
-    userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')
+    # userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')
     print(userDBManager.check_database())
 
