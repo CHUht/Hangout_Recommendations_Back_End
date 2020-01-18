@@ -78,6 +78,24 @@ class UserDBManager:
         self.dbdeconnect()
         return result
 
+    def return_user_data_by_email(self, email):
+
+        """
+            This function must return the user profile based on the email
+            It needs other database classes to work with it!
+            For now just return the basic stuff
+        """
+        self.dbconnect()
+        sql_command = """
+                       SELECT *
+                       FROM Users
+                       WHERE email='{0}'
+                   """.format(email)
+        self.controller.execute(sql_command)
+        result = self.controller.fetchall()[0]
+        self.dbdeconnect()
+        return result
+
     def return_user_id(self, uname):
 
         """

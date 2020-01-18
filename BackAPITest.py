@@ -53,7 +53,6 @@ def get_event(event_id=0):
     """
     # event = list(filter(lambda t: t['event_id'] == event_id, event_manager.check_database()))
     single_event = [event_manager.get_event_with_nearest(event_id)]
-    # 有的话，就返回列表形式包裹的这个元素，没有的话就报错404
     if len(single_event) == 0:
         abort(404)
     return jsonify({'event': single_event[0]})
@@ -81,9 +80,8 @@ def get_event_by_category(category):
     """
     if not isinstance(category, int):
         raise TypeError('query should be integer category index')
-    if category <= 5:
-        cate_event = event_manager.all_events_of_cates(category)
-    if len(cate_event) == 0 or category == '':
+    cate_event = event_manager.all_events_of_cates(category)
+    if len(cate_event) == 0 or not category:
         abort(404)
     return jsonify({'event': cate_event})
 
@@ -91,38 +89,62 @@ def get_event_by_category(category):
 @app.route('/api/v1.0/Users/login', methods=['GET', 'POST'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_login():
+    """
+    get the user login form and check login authentication
+    :return:
+    """
     if request.method == 'GET':
         return render_template('log_in.html')
     elif request.method == 'POST':
-        if not request.json or 'uname' not in request.json:
+        if not request.json or 'unique_key' not in request.json:
             abort(400)
         user_info = {
-                'uname': request.json['uname'],
+                'unique_key': request.json['unique_key'],
                 'pword': request.json['pword']
         }
         # code for debugging #
         # user_info = {
-        #     'uname': request.form.get('uname'),
+        #     'unique_key': request.form.get('unique_key'),
         #     'pword': request.form.get('pword')
         # }
         # print(request.json)
-        if user_info['uname'] == '':
+        if not user_info['unique_key']:
             return jsonify({'user_online': user_info, 'login state': False,
-                            'description': 'user name should not be vacant'}), 201
-        if not user_manager.return_user_data(user_info['uname']):
+                            'description': 'user name or email should not be empty'}), 201
+        if not user_info['pword']:
             return jsonify({'user_online': user_info, 'login state': False,
-                            'description': 'user not found'}), 201
-        if user_manager.user_authentication(user_info['uname'], user_info['pword']):
-            return jsonify({'user_online': user_info, 'login state': True,
-                            'description': 'successfully log in'}), 201
+                            'description': 'password should not be empty'}), 201
+
+        if not validate_email(user_info['unique_key'], verify=True):
+            if not user_manager.return_user_data(user_info['unique_key']):
+                return jsonify({'user_online': user_info, 'login state': False,
+                                'description': 'user not found'}), 201
+            if user_manager.user_authentication(user_info['unique_key'], user_info['pword']):
+                return jsonify({'user_online': user_info, 'login state': True,
+                                'description': 'successfully log in'}), 201
+            else:
+                return jsonify({'user_online': user_info, 'state': False,
+                                'description': 'wrong password, try again'}), 201
         else:
-            return jsonify({'user_online': user_info, 'state': False,
-                            'description': 'wrong password, try again'}), 201
+            if not user_manager.return_user_data_by_email(user_info['unique_key']):
+                return jsonify({'user_online': user_info, 'login state': False,
+                                'description': 'user not found'}), 201
+            if user_manager.email_authentication(user_info['unique_key'], user_info['pword']):
+                return jsonify({'user_online': user_info, 'login state': True,
+                                'description': 'successfully log in'}), 201
+            else:
+                return jsonify({'user_online': user_info, 'state': False,
+                                'description': 'wrong password, try again'}), 201
 
 
 @app.route('/api/v1.0/Users/<uname>', methods=['GET', 'PUT'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_profile(uname=None):
+    """
+    get user's profile or modify user profile
+    :param uname:
+    :return:
+    """
     if request.method == 'GET':
         user = user_manager.return_user_data(uname)
         if len(user) == 0:
@@ -142,6 +164,10 @@ def user_profile(uname=None):
 @app.route('/api/v1.0/Users/signup', methods=['GET', 'POST'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_signup():
+    """
+    create account for user while check if all info are legal
+    :return:
+    """
     if request.method == 'GET':
         return render_template('sign_up_page.html')
     elif request.method == 'POST':
@@ -177,12 +203,21 @@ def user_signup():
                                 'description': 'email already occupied by another account'}), 201
         user = {
             'uname': rj['uname'],
-            'email': rj['email'],
-            'city': rj['city']
+            'email': rj['email']
         }
-        user_manager.create_new_user(
-            rj['uname'], rj['pword'], rj['email'], rj['address'], rj['city']
-        )
+        if rj['address'] != 'null' and rj['city'] != 'null':
+            user_manager.create_new_user(
+                rj['uname'], rj['pword'], rj['email'], rj['address'], rj['city']
+            )
+        elif rj['address'] != 'null' and rj['city'] == 'null':
+            user_manager.create_new_user(
+                rj['uname'], rj['pword'], rj['email'], address=rj['address'])
+        elif rj['address'] == 'null' and rj['city'] != 'null':
+            user_manager.create_new_user(
+                rj['uname'], rj['pword'], rj['email'], city=rj['city'])
+        else:
+            user_manager.create_new_user(
+                rj['uname'], rj['pword'], rj['email'])
         send_email(rj['email'],'Thank you for your subscription')
         return jsonify({'user_info': user, 'state': True,
                         'description': 'successfully signed up. Start Visit Paris now!'}), 201
@@ -191,6 +226,10 @@ def user_signup():
 @app.route('/api/v1.0/Users/choose_tags', methods=['PUT'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_choose_tags():
+    """
+    user chooses the tags he prefers
+    :return:
+    """
     tags_chosen = []
     user = {}
     return jsonify({'user_info': user, 'tags': tags_chosen})

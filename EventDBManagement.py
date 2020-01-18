@@ -305,19 +305,14 @@ class EventsDBManager:
         all_ids = self.retrieve_event_ids()
         return len(all_ids)
 
-    def all_events_of_lagrg_cates(self,cate_type):
+    def all_events_of_cates(self, cate_type):
         """
             This function returns all events of a specified larde category
         """
-        if cate_type not in [1,2,3,4,5]:
-            raise IndexError('input should be 1,2,3,4,5')
+        if cate_type not in range(1, 50):
+            raise IndexError('input should be integer from 1 to 49')
         return self.search_key_words(cate_map[cate_type])
 
-    def all_events_of_small_cates(self,cate_name):
-        """
-            This function returns all events of a specified small category
-        """
-        return self.search_key_words(cate_name)
 
     def get_no_label_statistics(self):
         all = self.check_database()
