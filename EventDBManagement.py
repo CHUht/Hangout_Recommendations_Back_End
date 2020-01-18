@@ -456,26 +456,21 @@ class EventsDBManager:
 if __name__ == "__main__":
 
     eventsDBManager = EventsDBManager()
-    # event = eventsDBManager.return_event_no_nearest(1)# event is in type of dict of an event.
+    # event = eventsDBManager.return_event_no_nearest(2270)# event is in type of dict of an event.
     # print(event)
     # print(eventsDBManager.check_database()[:2])
-    # eventsDBManager.return_random_events()
-    print(eventsDBManager.get_tags_statistics())
+    # print(eventsDBManager.get_tags_statistics())
     # cata = eventsDBManager.get_catagories_statistics()
     # print(cata)
     # eventsDBManager.delete_Event_table()
     # eventsDBManager.drop_table()
     # print(eventsDBManager.check_database())
-    # eventsDBManager.return_ten_diff_events()
     # print(eventsDBManager.number_of_events())
-    # eventsDBManager.all_ids_of_events()
     # print(eventsDBManager.get_large_categoty(2270))
     # diff_events = eventsDBManager.return_several_events_of_a_cate(1)
     # print(len(diff_events))
-    # for i in diff_events:
-    #     print(i)
     # print(eventsDBManager.get_event_with_nearest(99746))
-    # print(eventsDBManager.return_events_by_category(2))
+    # print(eventsDBManager.return_several_events_of_a_cate(2))
     # result = eventsDBManager.search_key_words('Mange')
     # print(len(result),result)
     # print(len(eventsDBManager.all_events_of_lagrg_cates(1)))

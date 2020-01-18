@@ -11,18 +11,23 @@ class UserLikeManager:
             We need to connect to the database
             and get the last id!
         """
+        pass
+
+    def dbconnect(self):
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
 
-    def add_like(self, user_id, event_id):
+    def dbdeconnect(self):
+        self.connection.close()
 
+    def add_like(self, user_id, event_id):
         """
             This function adds an event like made by the user to the database
         """
-
         if type(user_id) != int or type(event_id) != int:
             raise TypeError("Values must be integers")
         # to verify if this event for this user has already been rated. if yes, override it. else, insert it into database
+        self.dbconnect()
         sql_command = """
                         SELECT user_id, event_id
                         FROM UserLike
@@ -43,6 +48,7 @@ class UserLikeManager:
             values = (user_id, event_id)
             self.controller.execute(sql_command, values)
             self.connection.commit()
+        self.dbdeconnect()
         # if user likes one event, should rate it 5 points automatically
         userRatingManager = UserRatingManager()
         userRatingManager.add_rating(user_id,event_id,5)
@@ -53,10 +59,10 @@ class UserLikeManager:
         """
             This function removes an event like made by the user to the database
         """
-
         if type(user_id) != int or type(event_id) != int:
             raise TypeError("Values must be integers")
 
+        self.dbconnect()
         sql_command = """
                        DELETE FROM UserLike
                        WHERE UserLike.user_id = '{0}'
@@ -65,6 +71,7 @@ class UserLikeManager:
 
         self.controller.execute(sql_command)
         self.connection.commit()
+        self.dbdeconnect()
 
     def get_likes_id_from_user(self, user_id):
 
@@ -76,7 +83,7 @@ class UserLikeManager:
 
         if type(user_id) != int:
             raise TypeError("User id must be an int")
-
+        self.dbconnect()
         sql_command = """
                         SELECT event_id
                         FROM UserLike
@@ -85,10 +92,11 @@ class UserLikeManager:
         self.controller.execute(sql_command)
 
         likes = self.controller.fetchall()
-        print(likes)
+        self.dbdeconnect()
         for i in range(len(likes)):
- !!!!
-        return likes
+            likes[i] = likes[i][0]
+        print(likes)
+#         return likes
 
     def return_like_events_from_user(self,user_id):
         self.get_likes_id_from_user()
@@ -99,22 +107,25 @@ class UserLikeManager:
             Just checking the database!
             Returns everything in it
         """
-
+        self.dbconnect()
         sql_command = """
                     SELECT *
                     FROM UserLike
                 """
         self.controller.execute(sql_command)
         print('check_database')
-        for col in self.controller.fetchall():
-            print(col)
+        result = self.controller.fetchall()
+        # for col in result:
+        #     print(col)
+        self.dbdeconnect()
+        return result
 
     def delete_userlike_table(self):
         """
             Created for debuging
             Deletes the data in the user ratings!
         """
-
+        self.dbconnect()
         sql_command = """
                         DELETE FROM UserLike;
                     """
@@ -126,21 +137,25 @@ class UserLikeManager:
                     """
         self.controller.execute(sql_command)
         self.connection.commit()
+        self.dbdeconnect()
 
     def drop_table(self):
         """
             Created for debuging
             Drops the table!
         """
-
+        self.dbconnect()
         sql_command = """
                     DROP TABLE UserLike;
                 """
         self.connection.execute(sql_command)
+        self.dbdeconnect()
 
 if __name__ == "__main__":
 
     userLikeManager = UserLikeManager()
+    # print(userLikeManager.check_database())
+    # userLikeManager.drop_table()
     userLikeManager.add_like(1,2)
     userLikeManager.add_like(2,3)
     userLikeManager.get_likes_id_from_user(1)
