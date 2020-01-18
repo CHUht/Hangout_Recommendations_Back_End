@@ -79,7 +79,10 @@ def get_event_by_category(category):
     Frontend gets a list of events by selected category
     :return:
     """
-    cate_event = event_manager.return_several_events_of_a_cate(category, number_of_events=20)
+    if not isinstance(category, int):
+        raise TypeError('query should be integer category index')
+    if category <= 5:
+        cate_event = event_manager.all_events_of_cates(category)
     if len(cate_event) == 0 or category == '':
         abort(404)
     return jsonify({'event': cate_event})
