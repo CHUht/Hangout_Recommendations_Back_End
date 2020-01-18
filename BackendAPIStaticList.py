@@ -1,21 +1,56 @@
 import socket
 
 cate_map = {
-        1: 'Expositions',
-        2: 'Animations',
-        3: 'Spectacles',
-        4: 'Événements',
-        5: 'Concerts'
-    }
-
-cate_re_map = {
-        'Expositions': 1,
-        'Animations': 2,
-        'Spectacles': 3,
-        'Événements': 4,
-        'Concerts': 5
-    }
-
+    1: 'Animations',
+    2: 'Concerts',
+    3: 'Événements',
+    4: 'Expositions',
+    5: 'Spectacles',
+    6: 'Atelier/Cours',
+    7: 'Autre animation',
+    8: 'Balade',
+    9: 'Conférence / Débat',
+    10: 'Lecture / Rencontre',
+    11: 'Loisirs / Jeux',
+    12: 'Stage',
+    13: 'Visite guidée',
+    14: 'Autre concert',
+    15: 'Chanson française',
+    16: "Classique",
+    17:  "Folk",
+    18: "Hip-Hop",
+    19: "Jazz",
+    20: "Musiques du Monde",
+    21: "Pop / Variété",
+    22: "Reggae",
+    23: "Rock",
+    24: "Soul/Funk",
+    25: "Électronique",
+    26: "Autre événement",
+    27: "Brocante / Marché",
+    28: "Festival / Cycle",
+    29: "Fête / Parade",
+    30: "Salon",
+    31: "Soirée / Bal",
+    32: "Événement sportif",
+    33: "Art Contemporain",
+    34: "Autre expo",
+    35: "Beaux-Arts",
+    36: "Design / Mode",
+    37: "Histoire / Civilisations",
+    38: "Illustration / BD",
+    39: "Photographie",
+    40: "Sciences / Techniques",
+    41: "Street-art",
+    42: "Autre spectacle",
+    43: "Cirque / Art de la Rue",
+    44: "Danse",
+    45: "Humour",
+    46: "Jeune public",
+    47: "Opéra / Musical",
+    48: "Projection",
+    49: "Théâtre",
+}
 
 host = socket.gethostbyname(socket.gethostname())
 url_root = r'http://' + host + ':8080'

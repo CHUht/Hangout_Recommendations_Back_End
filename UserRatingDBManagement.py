@@ -171,7 +171,7 @@ class UserRatingManager:
         self.dbdeconnect()
 
 if __name__ == "__main__":
-    # userRatingManager = UserRatingManager()
+    userRatingManager = UserRatingManager()
     # print(userRatingManager.check_database())
     # userRatingManager.add_rating(0,0,1)
     # userRatingManager.add_rating(0,1,2)
