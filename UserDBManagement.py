@@ -59,6 +59,19 @@ class UserDBManager:
         self.connection.commit()
         self.dbdeconnect()
 
+    def modify_password(self,uname:str,new_password:str):
+        """
+            This function must return the user profile based on the username
+            It needs other database classes to work with it!
+            For now just return the basic stuff
+        """
+        self.dbconnect()
+        sql_command = """
+            UPDATE Users SET pword = {0}
+            WHERE uname = '{1}';
+            """.format(new_password,uname)
+        self.controller.execute(sql_command)
+        self.dbdeconnect()
 
     def return_user_data(self, uname):
 
