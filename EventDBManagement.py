@@ -354,7 +354,7 @@ class EventsDBManager:
         # for key,value in category_labels_small.items():
         #     print(key,value)
         # print(number_of_small_cates)
-        # return category_labels_large
+        return category_labels_large
 
     def get_tags_statistics(self):
         """
@@ -454,8 +454,8 @@ if __name__ == "__main__":
     # print(event)
     # print(eventsDBManager.check_database()[:2])
     # print(eventsDBManager.get_tags_statistics())
-    # cata = eventsDBManager.get_catagories_statistics()
-    # print(cata)
+    cata = eventsDBManager.get_catagories_statistics()
+    print(cata)
     # eventsDBManager.delete_Event_table()
     # eventsDBManager.drop_table()
     # print(eventsDBManager.check_database())

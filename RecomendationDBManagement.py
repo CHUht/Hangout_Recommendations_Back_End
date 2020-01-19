@@ -107,5 +107,6 @@ class RecomendationDBManager:
         self.connection.execute(sql_command)
 
 if __name__ == "__main__":
-    recommendationDBManager = RecomendationDBManager()
-    recommendationDBManager.drop_table()
+    rmanager = RecomendationDBManager()
+    rmanager.add_recommendation(0, 2270,5)
+
