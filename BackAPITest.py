@@ -80,7 +80,10 @@ def get_event_by_category(category):
     """
     if not isinstance(category, int):
         raise TypeError('query should be integer category index')
-    cate_event = event_manager.all_events_of_cates(category)
+    if category <= 5:
+        cate_event = event_manager.return_several_events_of_a_cate(category, number_of_events=20)
+    else:
+        cate_event = event_manager.all_events_of_cates(category)
     if len(cate_event) == 0 or not category:
         abort(404)
     return jsonify({'event': cate_event})
@@ -137,7 +140,7 @@ def user_login():
                                 'description': 'wrong password, try again'}), 201
 
 
-@app.route('/api/v1.0/Users/<uname>', methods=['GET', 'PUT'])
+@app.route('/api/v1.0/Users/<uname>', methods=['GET', 'POST'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_profile(uname=None):
     """
@@ -223,7 +226,7 @@ def user_signup():
                         'description': 'successfully signed up. Start Visit Paris now!'}), 201
 
 
-@app.route('/api/v1.0/Users/choose_tags', methods=['PUT'])
+@app.route('/api/v1.0/Users/choose_tags', methods=['POST'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_choose_tags():
     """
@@ -270,10 +273,18 @@ def send_email(email, link):
     # to do
 
 
-@app.route('/api/v1.0/Users/reset_password', methods=['PUT'])
+@app.route('/api/v1.0/Users/reset_password', methods=['POST'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_reset_password():
-    return jsonify({'reset state': False})
+    if request.method == 'POST':
+        if not request.json or 'uname' not in request.json:
+            abort(404)
+        if request.json['uname'] in user_manager.return_usernames():
+            return jsonify({'reset state': False, 'description': 'user not found'})
+        if request.json['new_pword'] != request.json['rep_pword']:
+            return jsonify({'reset state': False, 'description': 'These two passwords entered do not match'})
+        user_manager.modify_password(request.json['uname'], request.json['new_pword'])
+        return jsonify({'reset state': False})
     # to do
 
 
