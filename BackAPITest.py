@@ -4,6 +4,7 @@ from flask_cors import CORS, cross_origin
 from EventDBManagement import *
 from UserDBManagement import *
 from RecomendationDBManagement import *
+from UserCatesDBManagement import *
 from geopy.geocoders import Nominatim
 from validate_email import validate_email
 from BackendAPIStaticList import *
@@ -19,6 +20,7 @@ cors = CORS(app, resources=url_rsc, support_credentials=True,
 user_manager = UserDBManager()
 event_manager = EventsDBManager()
 rcmd_manager = RecomendationDBManager()
+user_cates_Manager = UserCatesManager()
 geolocator = Nominatim(user_agent="Hangout Recommendation")
 
 
@@ -102,9 +104,7 @@ def user_login():
         if not request.json or 'unique_key' not in request.json:
             abort(400)
         user_info = {
-                'unique_key': request.json['unique_key'],
-                'pword': request.json['pword']
-        }
+                'unique_key': request.json['unique_key']}
         # code for debugging #
         # user_info = {
         #     'unique_key': request.form.get('unique_key'),
@@ -233,9 +233,18 @@ def user_choose_tags():
     user chooses the tags he prefers
     :return:
     """
-    tags_chosen = []
-    user = {}
-    return jsonify({'user_info': user, 'tags': tags_chosen})
+    if request.method == 'POST':
+        if not request.json or 'user_id' not in request.json:
+            abort(404)
+        user_id = request.json['user_id']
+        tags_chosen = set(request.json['tags'])
+
+        for tag in tags_chosen:
+            if tag not in cate_map.keys():
+                tags_chosen.remove(tag)
+
+        user_cates_Manager.insert_user_cates(user_id, tags_chosen)
+        return jsonify({'user_info': user_id, 'tags': tags_chosen, 'state': True})
     # to do
 
 

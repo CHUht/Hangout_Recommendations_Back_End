@@ -305,14 +305,13 @@ class EventsDBManager:
         all_ids = self.retrieve_event_ids()
         return len(all_ids)
 
-    def all_events_of_cates(self, cate_type):
+    def all_events_of_cates(self,cate_type):
         """
             This function returns all events of a specified larde category
         """
-        if cate_type not in range(1, 50):
+        if cate_type not in range(1,50):
             raise IndexError('input should be integer from 1 to 49')
         return self.search_key_words(cate_map[cate_type])
-
 
     def get_no_label_statistics(self):
         all = self.check_database()
@@ -355,7 +354,7 @@ class EventsDBManager:
         # for key,value in category_labels_small.items():
         #     print(key,value)
         # print(number_of_small_cates)
-        # return category_labels_large
+        return category_labels_large
 
     def get_tags_statistics(self):
         """
@@ -455,8 +454,8 @@ if __name__ == "__main__":
     # print(event)
     # print(eventsDBManager.check_database()[:2])
     # print(eventsDBManager.get_tags_statistics())
-    # cata = eventsDBManager.get_catagories_statistics()
-    # print(cata)
+    cata = eventsDBManager.get_catagories_statistics()
+    print(cata)
     # eventsDBManager.delete_Event_table()
     # eventsDBManager.drop_table()
     # print(eventsDBManager.check_database())

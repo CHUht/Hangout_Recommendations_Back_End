@@ -74,7 +74,10 @@ class UserDBManager:
                     WHERE uname='{0}'
                 """.format(uname)
         self.controller.execute(sql_command)
-        result = self.controller.fetchall()[0]
+        if len(self.controller.fetchall()) != 0:
+            result = self.controller.fetchall()[0]
+        else:
+            result = []
         self.dbdeconnect()
         return result
 
@@ -226,7 +229,7 @@ class UserDBManager:
 
 if __name__ == "__main__":
     userDBManager = UserDBManager()
-    # print(userDBManager.check_database())
+    print(userDBManager.check_database()[0][0])
     # userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')
     # userDBManager.create_new_user('Lu','withpw','jiaohao.li@student-cs.fr')
     # userDBManager.delete_user_table()
