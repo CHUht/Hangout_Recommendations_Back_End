@@ -52,7 +52,6 @@ cate_map = {
     49: "Théâtre",
 }
 
-
 host = socket.gethostbyname(socket.gethostname())
 url_root = r'http://' + host + ':8080'
 url_api = r'/api/v1.0'

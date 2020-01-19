@@ -20,7 +20,7 @@ class RecomendationDBManager:
         """
 
         sql_command = """
-                    INSERT INTO UserRecommendation(user_id, event_id, rating)
+                    INSERT INTO UserRecommendations(user_id, event_id, rating)
                     VALUES ( ? , ? , ?);
                 """
 
@@ -53,7 +53,7 @@ class RecomendationDBManager:
 
         sql_command = """
                         SELECT event_id, score
-                        FROM UserRecommendation
+                        FROM UserRecommendations
                         WHERE user_id = '{0}'
                         ORDER BY score
                     """.format(user_id)
@@ -107,6 +107,5 @@ class RecomendationDBManager:
         self.connection.execute(sql_command)
 
 if __name__ == "__main__":
-    rmanager = RecomendationDBManager()
-    rmanager.add_recommendation(0, 2270,5)
-
+    recommendationDBManager = RecomendationDBManager()
+    recommendationDBManager.drop_table()
