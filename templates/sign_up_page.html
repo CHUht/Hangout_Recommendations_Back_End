@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+
+    <form action="/api/v1.0/Users/signup" method="post" >
+        <div class="container">
+                <label for="new_uname"><b>New Username</b></label>
+                <input id="new_uname" type="text" placeholder="Enter New Username" name="new_uname">
+
+                <br>
+
+                <label for="new_psw"><b>New Password</b></label>
+                <input id="new_psw" type="text" placeholder="Enter New Password" name="new_psw" required>
+
+                <br>
+
+                <label for="rep_psw"><b>Retype Password</b></label>
+                <input id="rep_psw" type="text" placeholder="Enter Retype Password" name="rep_psw" required>
+
+                <br>
+                <label for="email"><b>Retype Password</b></label>
+                <input id="email" type="text" placeholder="Enter your email" name="email" required>
+
+                <br>
+
+                <label ><b>Address</b></label>
+                <input id="adrs" type="text" placeholder="Enter Your Address" name="adrs">
+
+                <br>
+
+                <label ><b>City</b></label>
+                <input id="city" type="text" placeholder="Enter Your City" name="city">
+
+                <br>
+        </div>
+
+        <button type="submit">Create User</button>
+    </form>
+
+</body>
+</html>

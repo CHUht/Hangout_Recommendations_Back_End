@@ -20,7 +20,7 @@ class RecomendationDBManager:
         """
 
         sql_command = """
-                    INSERT INTO UserRecommendations(user_id, event_id, rating)
+                    INSERT INTO UserRecommendation(user_id, event_id, rating)
                     VALUES ( ? , ? , ?);
                 """
 
@@ -53,7 +53,7 @@ class RecomendationDBManager:
 
         sql_command = """
                         SELECT event_id, score
-                        FROM UserRecommendations
+                        FROM UserRecommendation
                         WHERE user_id = '{0}'
                         ORDER BY score
                     """.format(user_id)
@@ -95,7 +95,18 @@ class RecomendationDBManager:
                     """
         self.controller.execute(sql_command)
         self.connection.commit()
+    def drop_table(self):
+        """
+            Created for debuging
+            Drops the table!
+        """
+
+        sql_command = """
+                    DROP TABLE UserRecommendations;
+                """
+        self.connection.execute(sql_command)
 
 if __name__ == "__main__":
+    rmanager = RecomendationDBManager()
+    rmanager.add_recommendation(0, 2270,5)
 
-    pass

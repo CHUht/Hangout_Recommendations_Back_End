@@ -4,6 +4,7 @@ from random import choice
 from time import *
 import datetime
 from BackendAPIStaticList import *
+from threading import Lock
 
 @singleton
 class EventsDBManager:
@@ -106,8 +107,8 @@ class EventsDBManager:
             This function returns several different events, at least 2 events for each large category
 
         """
-        if number_of_events < 10 or type(number_of_events) != int:
-            raise IndexError('number of events should >= 10')
+        if number_of_events < 10 or type(number_of_events) != int or number_of_events > 100:
+            raise IndexError('number of events should >= 10, and  number of event should be small')
         events_id = []
         cates = self.get_catagories_statistics() # dict. key: large categories, value: number of it
 
@@ -159,8 +160,8 @@ class EventsDBManager:
             This function returns several different events, at least 2 events for each large category
 
         """
-        if  type(cate_type) != int or cate_type <= 0:
-            raise IndexError('number of events should be a positive integer')
+        if  type(cate_type) != int or cate_type <= 0 or number_of_events > 30:
+            raise IndexError('number of events should be a positive integer,and  number of event should be small')
         cates = self.get_catagories_statistics() # dict. key: large categories, value: number of it
 
         sql_command = """
@@ -206,7 +207,10 @@ class EventsDBManager:
                     """.format(id)
 
         self.controller.execute(sql_command)
-        query_result = self.controller.fetchall()[0]
+        query_result = self.controller.fetchall()
+        if len(query_result) == 0:
+            raise ValueError('illegal input id')
+        query_result = query_result[0]
         now = strftime("%Y-%m-%dT%H:%M:%S", localtime())
         # print(query_result)
         pattern = re.compile('(20.*?)_(20.*?);')
@@ -222,6 +226,11 @@ class EventsDBManager:
                 second = splited.group(4)
                 diff = splited.group(5)
                 hour = str(int(hour) - int(diff))
+                if int(hour) < 0:
+                    if int(date_start[-2:]) == 0:
+                        date_start = date_start[:-5] + str(int(date_start[-5:-3])-1).zfill(2) + date_start[-3:-2] + \
+                                     str(int(date_start[-2:])-1).zfill(2)
+                    hour = str(int(hour) + 24)
                 time = (date_start+' '+hour+':'+ minute+':'+second)
                 period.append(time)
             occurrences_cleaned.append(period)
@@ -234,9 +243,6 @@ class EventsDBManager:
                 break
 
         if nearest != None:
-            # print(nearest,query_result[0])
-            if nearest[11] == '-':
-                nearest = nearest[:11]+nearest[12:]
             whatday= datetime.datetime.strptime(nearest,'%Y-%m-%d %H:%M:%S').strftime("%w")
             whatday =jour_semaine[whatday]
             nearest += (' '+ whatday)
@@ -246,29 +252,79 @@ class EventsDBManager:
         event_to_return = self.return_event_no_nearest(query_result[0])
         event_to_return['nearest'] = nearest
         # print(event_to_return['nearest'])
+
+        occu_dict = {}
+        for start_time,end_time in occurrences_cleaned:
+            date_occurrence = start_time[:10]
+            occu_dict.setdefault(date_occurrence, []).append((start_time,end_time))
+        event_to_return['occurrences'] = occu_dict
         return event_to_return
+
+    def search_key_words(self,keywords):
+        """
+        this function returns a list of events of given keywords
+        :param keywords: str
+        :return: dict
+        """
+        keywords = str(keywords)
+        keywords = re.split(r'\s*(?:;|,|\s)\s*',keywords)
+        print(keywords)
+        all_events = self.check_database()
+        return_list_id = []
+        return_list = []
+        for event in all_events:
+            whole = ''
+            flag = True
+            for value in event:
+                whole += (str(value) + ' ')
+            for keyword in keywords:
+                matc = re.search(str(keyword),str(whole))
+                if matc == None:
+                    flag = False
+                    break
+            if flag:
+                return_list_id.append(event[0])
+
+        return_list = []
+        # print(events_id)
+        for i in return_list_id:
+            event_raw = self.get_event_with_nearest(i)
+            event = {}
+            attr_list = ['event_id', 'title', 'address_street', 'address_city',
+                  'cover_url','large_category','nearest']
+            for key,value in event_raw.items():
+                if key in attr_list:
+                    event[key] = value
+            return_list.append(event)
+        return return_list
 
     def number_of_events(self):
         """
-        this function retuens the total number of events
+            This function returns the total number of events
         """
         all_ids = self.retrieve_event_ids()
         return len(all_ids)
 
-
-    def return_events_by_category(self,number:int):
+    def all_events_of_cates(self,cate_type):
         """
-            This function returns in json format the event information based on the event id!
+            This function returns all events of a specified larde category
         """
+        if cate_type not in range(1,50):
+            raise IndexError('input should be integer from 1 to 49')
+        return self.search_key_words(cate_map[cate_type])
 
-        if number not in [1,2,3,4,5]:
-            raise IndexError('input should be 1,2,3,4,5')
-        all_ids = self.retrieve_event_ids()
-        while True:
-            id_random = choice(all_ids)
-            event = self.return_event_no_nearest(id_random)
-            if event['large_category'] == cate_map[number]:
-                return event
+    def get_no_label_statistics(self):
+        all = self.check_database()
+        label_list = ['event_id', 'title', 'category', 'price', 'description',
+                          'link', 'telephone', 'tags', 'address_street', 'address_city',
+                          'address_zipcode', 'date', 'date_end', 'contact_mail', 'facebook', 'website',
+                          'cover_url', 'latitude', 'longitude','occurrences','large_category','small_category']
+        dict = {}
+        for event in all:
+            for i in range(len(event)):
+                if event[i] == "NULL":
+                    dict[label_list[i]] = dict.get(label_list[i],0) + 1
+        return dict
 
 
     def get_catagories_statistics(self):
@@ -293,10 +349,11 @@ class EventsDBManager:
         # for key,value in category_labels_large.items():
         #     print(key,value)
         #
+        # number_of_small_cates = 0
         # print('small categories:---------------------')
         # for key,value in category_labels_small.items():
         #     print(key,value)
-
+        # print(number_of_small_cates)
         return category_labels_large
 
     def get_tags_statistics(self):
@@ -320,7 +377,9 @@ class EventsDBManager:
             number_labels[i] = number_labels.get(i,0) + 1
         # for key,value in number_labels.items():
         #     print(key,value)
-        return number_labels
+        number_labels.pop('NULL')
+        number_labels.pop('English')
+        return list(number_labels.keys())
 
     def get_large_categoty(self, id):
         """
@@ -391,22 +450,24 @@ class EventsDBManager:
 if __name__ == "__main__":
 
     eventsDBManager = EventsDBManager()
-    # event = eventsDBManager.return_event_no_nearest(1)# event is in type of dict of an event.
+    # event = eventsDBManager.return_event_no_nearest(2270)# event is in type of dict of an event.
     # print(event)
     # print(eventsDBManager.check_database()[:2])
-    # eventsDBManager.return_random_events()
     # print(eventsDBManager.get_tags_statistics())
-    # cata = eventsDBManager.get_catagories_statistics()
+    cata = eventsDBManager.get_catagories_statistics()
+    print(cata)
     # eventsDBManager.delete_Event_table()
     # eventsDBManager.drop_table()
     # print(eventsDBManager.check_database())
-    # eventsDBManager.return_ten_diff_events()
     # print(eventsDBManager.number_of_events())
-    # eventsDBManager.all_ids_of_events()
     # print(eventsDBManager.get_large_categoty(2270))
-    diff_events = eventsDBManager.return_several_events_of_a_cate(1)
-    print(len(diff_events))
-    for i in diff_events:
-        print(i)
-    # print(eventsDBManager.get_event_with_nearest(99812))
-    # print(eventsDBManager.return_events_by_category(2))
+    # diff_events = eventsDBManager.return_several_events_of_a_cate(1)
+    # print(len(diff_events))
+    # print(eventsDBManager.get_event_with_nearest(99746))
+    # print(eventsDBManager.return_several_events_of_a_cate(2))
+    # result = eventsDBManager.search_key_words('Mange')
+    # print(len(result),result)
+    # print(len(eventsDBManager.all_events_of_lagrg_cates(1)))
+    # dict = eventsDBManager.get_no_label_statistics()
+    # for key,value in dict.items():
+    #     print(key,value)
