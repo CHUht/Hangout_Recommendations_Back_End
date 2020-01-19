@@ -87,6 +87,27 @@ class UserDBManager:
                     WHERE uname='{0}'
                 """.format(uname)
         self.controller.execute(sql_command)
+        if len(self.controller.fetchall()) != 0:
+            result = self.controller.fetchall()[0]
+        else:
+            result = []
+        self.dbdeconnect()
+        return result
+
+    def return_user_data_by_email(self, email):
+
+        """
+            This function must return the user profile based on the email
+            It needs other database classes to work with it!
+            For now just return the basic stuff
+        """
+        self.dbconnect()
+        sql_command = """
+                       SELECT *
+                       FROM Users
+                       WHERE email='{0}'
+                   """.format(email)
+        self.controller.execute(sql_command)
         result = self.controller.fetchall()[0]
         self.dbdeconnect()
         return result
@@ -221,7 +242,7 @@ class UserDBManager:
 
 if __name__ == "__main__":
     userDBManager = UserDBManager()
-    # print(userDBManager.check_database())
+    print(userDBManager.check_database()[0][0])
     # userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')
     # userDBManager.create_new_user('Lu','withpw','jiaohao.li@student-cs.fr')
     # userDBManager.delete_user_table()
