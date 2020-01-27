@@ -54,7 +54,7 @@ class UserDBManager:
             VALUES ( ?, ?, ?, ?, ?, ? );
         """
 
-        values = (self.last_id, uname, psw, address, city, email)
+        values = (self.last_id, uname, psw, email, address, city)
         self.controller.execute(sql_command, values)
         self.connection.commit()
         self.dbdeconnect()
@@ -82,19 +82,20 @@ class UserDBManager:
         """
         self.dbconnect()
         sql_command = """
-                    SELECT *
-                    FROM Users
-                    WHERE uname='{0}'
-                """.format(uname)
+                            SELECT *
+                            FROM Users
+                            WHERE uname = '{0}';
+                        """.format(uname)
         self.controller.execute(sql_command)
-        if len(self.controller.fetchall()) != 0:
-            result = self.controller.fetchall()[0]
-        else:
-            result = []
+        user = self.controller.fetchall()
         self.dbdeconnect()
-        return result
 
-    def return_user_data_by_email(self, email):
+        if(len(user) != 1):
+            raise Exception("Fatal error occurred two ids for one username")
+
+        return user[0]
+
+    def return_user_data_by_email(self, email:str):
 
         """
             This function must return the user profile based on the email
@@ -103,14 +104,19 @@ class UserDBManager:
         """
         self.dbconnect()
         sql_command = """
-                       SELECT *
-                       FROM Users
-                       WHERE email='{0}'
-                   """.format(email)
+                            SELECT *
+                            FROM Users
+                            WHERE email = '{0}';
+                        """.format(email)
         self.controller.execute(sql_command)
-        result = self.controller.fetchall()[0]
+        user = self.controller.fetchall()
         self.dbdeconnect()
-        return result
+        # print(user)
+        if(len(user) != 1):
+            raise Exception("Fatal error occurred two ids for one username")
+
+        return user[0]
+
 
     def return_user_id(self, uname):
 
@@ -123,7 +129,7 @@ class UserDBManager:
         sql_command = """
                             SELECT user_id
                             FROM Users
-                            WHERE uname='{0}'
+                            WHERE uname = '{0}';
                         """.format(uname)
         self.controller.execute(sql_command)
         user_id = self.controller.fetchall()
@@ -162,7 +168,7 @@ class UserDBManager:
         sql_command = """
                     SELECT uname, pword 
                     FROM Users
-                    WHERE uname = '{0}'
+                    WHERE uname = '{0}';
                 """.format(uname)
         self.controller.execute(sql_command)
         compare = self.controller.fetchall()
@@ -242,10 +248,11 @@ class UserDBManager:
 
 if __name__ == "__main__":
     userDBManager = UserDBManager()
-    print(userDBManager.check_database()[0][0])
     # userDBManager.create_new_user('Li', 'nopw', 'lizhihaozyz@gmail.com')
-    # userDBManager.create_new_user('Lu','withpw','jiaohao.li@student-cs.fr')
+    # userDBManager.create_new_user('Lu','withpw','jiahao.lu@student-cs.fr')
     # userDBManager.delete_user_table()
     # userDBManager.drop_table()
     # print(userDBManager.return_usernames())
     # print(userDBManager.check_database())
+    # print(userDBManager.return_user_data('Lu'))
+    # print(userDBManager.return_user_data_by_email('jiahao.lu@student-cs.fr'))

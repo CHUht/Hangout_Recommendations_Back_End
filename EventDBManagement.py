@@ -245,7 +245,9 @@ class EventsDBManager:
         if nearest != None:
             whatday= datetime.datetime.strptime(nearest,'%Y-%m-%d %H:%M:%S').strftime("%w")
             whatday =jour_semaine[whatday]
+            nearest = nearest[:-3]
             nearest += (' '+ whatday)
+            # print(nearest)
         else:
             nearest = "ce n'est pas no plus accesible"
         # print(nearest)
@@ -268,7 +270,7 @@ class EventsDBManager:
         """
         keywords = str(keywords)
         keywords = re.split(r'\s*(?:;|,|\s)\s*',keywords)
-        print(keywords)
+        # print(keywords)
         all_events = self.check_database()
         return_list_id = []
         return_list = []
@@ -338,7 +340,7 @@ class EventsDBManager:
 
         self.controller.execute(sql_command)
         query_result = self.controller.fetchall()
-        print(query_result)
+        # print(query_result)
         category_labels_large = {}
         category_labels_small = {}
         for i in query_result:
@@ -397,6 +399,15 @@ class EventsDBManager:
         large_category = self.controller.fetchall()[0][0]
         return large_category
 
+    def return_several_events_by_ids(self,list_of_ids:str):
+        for single_id in list_of_ids:
+            if type(single_id) != int:
+                raise ValueError('illegal input, not integer')
+        events = []
+        for single_id in list_of_ids:
+            events.append(self.get_event_with_nearest(single_id))
+        return events
+
     def delete_Event_table(self):
         """
             Created for debuging
@@ -454,20 +465,21 @@ if __name__ == "__main__":
     # print(event)
     # print(eventsDBManager.check_database()[:2])
     # print(eventsDBManager.get_tags_statistics())
-    cata = eventsDBManager.get_catagories_statistics()
-    print(cata)
+    # cata = eventsDBManager.get_catagories_statistics()
+    # print(cata)
     # eventsDBManager.delete_Event_table()
     # eventsDBManager.drop_table()
     # print(eventsDBManager.check_database())
     # print(eventsDBManager.number_of_events())
     # print(eventsDBManager.get_large_categoty(2270))
-    # diff_events = eventsDBManager.return_several_events_of_a_cate(1)
-    # print(len(diff_events))
+    diff_events = eventsDBManager.return_several_events_of_a_cate(1)
+    print(len(diff_events))
     # print(eventsDBManager.get_event_with_nearest(99746))
     # print(eventsDBManager.return_several_events_of_a_cate(2))
     # result = eventsDBManager.search_key_words('Mange')
     # print(len(result),result)
-    # print(len(eventsDBManager.all_events_of_lagrg_cates(1)))
+    # print(eventsDBManager.all_events_of_cates(1))
     # dict = eventsDBManager.get_no_label_statistics()
     # for key,value in dict.items():
     #     print(key,value)
+    # print(eventsDBManager.return_several_events_by_ids([99746,2270]))
