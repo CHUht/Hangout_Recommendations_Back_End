@@ -66,7 +66,8 @@ url_rsc = {r"/": {"origins": url_root},
            url_api + r'/Users/choose_tags': {'origins': url_root + url_api + '/Users/choose_tags'},
            url_api + r'/Users/send_link_by_email': {'origins': url_root + url_api + '/Users/send_link_by_email'},
            url_api + r'/Users/reset_password': {'origins': url_root + url_api + '/Users/reset_password'},
-           url_api + r'/Events/search': {'origins': url_root + url_api + '//Events/search'}
+           url_api + r'/Events/search': {'origins': url_root + url_api + '/Events/search'},
+           url_api + r'/Rating': {'origins': url_root + url_api + '/Rating'}
            }
 """
 r"/": useless 

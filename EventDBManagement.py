@@ -245,6 +245,7 @@ class EventsDBManager:
         if nearest != None:
             whatday= datetime.datetime.strptime(nearest,'%Y-%m-%d %H:%M:%S').strftime("%w")
             whatday =jour_semaine[whatday]
+            nearest = nearest[:-3]
             nearest += (' '+ whatday)
         else:
             nearest = "ce n'est pas no plus accesible"
@@ -268,7 +269,6 @@ class EventsDBManager:
         """
         keywords = str(keywords)
         keywords = re.split(r'\s*(?:;|,|\s)\s*',keywords)
-        print(keywords)
         all_events = self.check_database()
         return_list_id = []
         return_list = []
@@ -338,7 +338,6 @@ class EventsDBManager:
 
         self.controller.execute(sql_command)
         query_result = self.controller.fetchall()
-        print(query_result)
         category_labels_large = {}
         category_labels_small = {}
         for i in query_result:
@@ -463,7 +462,7 @@ if __name__ == "__main__":
     # print(eventsDBManager.get_large_categoty(2270))
     # diff_events = eventsDBManager.return_several_events_of_a_cate(1)
     # print(len(diff_events))
-    # print(eventsDBManager.get_event_with_nearest(99746))
+    print(eventsDBManager.get_event_with_nearest(99746))
     # print(eventsDBManager.return_several_events_of_a_cate(2))
     # result = eventsDBManager.search_key_words('Mange')
     # print(len(result),result)
