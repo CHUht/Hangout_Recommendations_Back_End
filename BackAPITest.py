@@ -13,7 +13,7 @@ from email.mime.text import MIMEText
 from email.header import Header
 import re
 from validate_email import validate_email
-
+#
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources=url_rsc, support_credentials=True,
