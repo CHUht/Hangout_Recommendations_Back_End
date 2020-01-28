@@ -61,6 +61,19 @@ class UserDBManager:
         print('DB message: user {0} --- user id {1} --- created by {2}'
               .format(uname, self.last_id, email))
 
+    def modify_password(self,uname:str,new_password:str):
+        """
+            This function must return the user profile based on the username
+            It needs other database classes to work with it!
+            For now just return the basic stuff
+        """
+        self.dbconnect()
+        sql_command = """
+            UPDATE Users SET pword = {0}
+            WHERE uname = '{1}';
+            """.format(new_password,uname)
+        self.controller.execute(sql_command)
+        self.dbdeconnect()
 
     def return_user_data(self, uname):
 
@@ -71,17 +84,21 @@ class UserDBManager:
         """
         self.dbconnect()
         sql_command = """
-                    SELECT *
-                    FROM Users
-                    WHERE uname='{0}'
-                """.format(uname)
+                            SELECT *
+                            FROM Users
+                            WHERE uname = '{0}';
+                        """.format(uname)
         self.controller.execute(sql_command)
         data = self.controller.fetchall()
         if len(data) != 0:
-            result = [data[0]]
+            result = data[0]
         else:
             result = []
         self.dbdeconnect()
+
+        if(len(data) != 1):
+            raise Exception("Fatal error occurred two ids for one username")
+
         return result
 
     def return_user_data_by_email(self, email:str):
@@ -99,11 +116,9 @@ class UserDBManager:
         # self.controller.execute(sql_command)
         # data = self.controller.fetchall()
         all_users = self.check_database()
-        result = []
-        for user in all_users:
-            if user[5] == email:
-                result.append(user)
-        return result
+        if (len(all_users) != 1):
+            raise Exception("Fatal error occurred two ids for one username")
+        return all_users[0]
 
     def return_user_id(self, uname):
 
@@ -116,7 +131,7 @@ class UserDBManager:
         sql_command = """
                             SELECT user_id
                             FROM Users
-                            WHERE uname='{0}'
+                            WHERE uname = '{0}';
                         """.format(uname)
         self.controller.execute(sql_command)
         user_id = self.controller.fetchall()
@@ -155,7 +170,7 @@ class UserDBManager:
         sql_command = """
                     SELECT uname, pword 
                     FROM Users
-                    WHERE uname = '{0}'
+                    WHERE uname = '{0}';
                 """.format(uname)
         self.controller.execute(sql_command)
         compare = self.controller.fetchall()
