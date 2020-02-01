@@ -55,6 +55,7 @@ class UserRatingManager:
             self.controller.execute(sql_command)
             self.connection.commit()
         self.dbdeconnect()
+        print("recommendation added --- user:{0} --- event:{1}".format(user_id, event_id))
 
     def remove_rating(self, user_id, event_id):
 
@@ -172,7 +173,7 @@ class UserRatingManager:
 
 if __name__ == "__main__":
     userRatingManager = UserRatingManager()
-    # print(userRatingManager.check_database())
+    print(userRatingManager.check_database())
     # userRatingManager.add_rating(0,0,1)
     # userRatingManager.add_rating(0,1,2)
     # userRatingManager.add_rating(0,2,5)

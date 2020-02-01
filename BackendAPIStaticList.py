@@ -1,4 +1,10 @@
 import socket
+import sys
+from Crypto.Cipher import AES
+from Crypto import Random
+from binascii import b2a_hex, a2b_hex
+import base64
+from hashlib import md5
 
 cate_map = {
     1: 'Animations',
@@ -102,4 +108,41 @@ jour_semaine = {'0':'dimanche',
                 '4':'jeudi',
                 '5':'vendredi',
                 '6':'samedi'}
+
+
+class AesCrypto():
+    def __init__(self, password,iv):
+        self.key = password.encode()  # must be 16 bytes boundary
+        self.iv = iv.encode()  # must be 16 bytes
+        self.mode = AES.MODE_CBC
+
+    def encrypt(self, text):
+        BS = AES.block_size
+        cipher = AES.new(self.key, self.mode, self.iv)
+        pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS).encode("utf-8")
+        data = pad(text.encode('utf-8'))
+        encrypt_data = cipher.encrypt(data)
+        return base64.b64encode(encrypt_data).decode()
+
+    def decrypt(self, code):
+            cipher = AES.new(self.key, self.mode, self.iv)
+            encrypt_data = base64.b64decode(code)
+            # print(encrypt_data)
+            decrypt_data = cipher.decrypt(encrypt_data)
+            upad = lambda s: s[0:-(s[-1])]
+            decrypt_data = upad(decrypt_data)
+            return decrypt_data.decode()
+
+if __name__ == '__main__':
+    myKey = "WuHan,GoodLuck!!"
+    myIV = "+wx:lzh295256908"
+    pc = AesCrypto(myKey, myIV)
+    # code = pc.encrypt('武汉')
+    # code = 'U2FsdGVkX18wF8F8K85745zwEtxsulXaoVYlxOvQIZBJYayIQL5+vf69vQmG81mI'
+    code = 'RpS/sdWm1xFU8ZVfuBVrKg=='
+    d = pc.decrypt(code)
+    print(code)
+    print(d)
+    # print(Random.new().read(3))
+
 

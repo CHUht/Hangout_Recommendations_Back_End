@@ -4,6 +4,7 @@ from flask_cors import CORS, cross_origin
 from EventDBManagement import *
 from UserDBManagement import *
 from RecomendationDBManagement import *
+from UserRatingDBManagement import *
 from UserCatesDBManagement import *
 from geopy.geocoders import Nominatim
 # from vali_mail import validate_email
@@ -14,6 +15,7 @@ from email.header import Header
 import re
 from validate_email import validate_email
 
+
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources=url_rsc, support_credentials=True,
@@ -23,13 +25,15 @@ user_manager = UserDBManager()
 event_manager = EventsDBManager()
 rcmd_manager = RecomendationDBManager()
 user_cates_Manager = UserCatesManager()
+rating_manager = UserRatingManager()
 geolocator = Nominatim(user_agent="Hangout Recommendation")
+aes_cipher = AesCrypto("WuHan,GoodLuck!!", "+wx:lzh295256908")
 
 
-@app.errorhandler(IndexError)
-def index_error_exception_handler(e):
-    print('index error')
-    return jsonify({'message': 'Back end Error raised'})
+# @app.errorhandler(IndexError)
+# def index_error_exception_handler(e):
+#     print('index error')
+#     return jsonify({'message': 'Back end Error raised'})
 
 
 @app.errorhandler(TypeError)
@@ -38,13 +42,18 @@ def type_error_exception_handler(e):
     return jsonify({'message': 'Back end Error raised'})
 
 
+@app.errorhandler(UnicodeDecodeError)
+def unicode_decode_error_exception_handler(e):
+    print('unicode decode error')
+    return jsonify({'message': 'Decrypto Error raised'})
+
 @app.errorhandler(404)
 def all_exception_handler(e):
     return jsonify({'message': '404 not found'})
 
-@app.errorhandler(204)
-def all_exception_handler(e):
-    return jsonify({'message': 'request recieved, but nothing to reply'})
+# @app.errorhandler(204)
+# def all_exception_handler(e):
+#     return jsonify({'message': 'request recieved, but nothing to reply'})
 
 @app.errorhandler(403)
 def all_exception_handler(e):
@@ -86,7 +95,7 @@ def get_event(event_id):
     verify_headers(request.headers)
     single_event = [event_manager.get_event_with_nearest(int(event_id))]
     if len(single_event) == 0:
-        abort(204)
+        abort(404)
     return jsonify({'event': single_event[0]})
 
 
@@ -100,7 +109,7 @@ def get_random_event():
     verify_headers(request.headers)
     if read_user_header(request.headers) == -1:
         rdm_event = event_manager.return_several_diff_events(number_of_events=20)
-        print("warning: random events")
+        print("no user login: random events")
         if not rdm_event:
             abort(404)
     else:
@@ -112,8 +121,8 @@ def get_random_event():
         if len(rdm_event) > 20:
             rdm_event = rdm_event[:20]
         elif len(rdm_event) == 0:
+            rdm_event = event_manager.return_several_diff_events(number_of_events=20)
             print("no recommended event found")
-            abort(204)
     return jsonify({'event': rdm_event})
 
 
@@ -132,7 +141,7 @@ def get_event_by_category(category):
     else:
         cate_event = event_manager.all_events_of_cates(category)
     if len(cate_event) == 0 or not category:
-        abort(204)
+        abort(404)
     return jsonify({'event': cate_event})
 
 
@@ -151,9 +160,13 @@ def user_login():
         # print(check_user_header(request.headers))
         if not request.json or 'unique_key' not in request.json:
             abort(400)
-        user_info = {
-                'unique_key': request.json['unique_key'],
-                'pword': request.json['pword']}
+        user_info = {}
+        try:
+            user_info = {
+                    'unique_key': aes_cipher.decrypt(request.json['unique_key']),
+                    'pword': aes_cipher.decrypt(request.json['pword'])}
+        except UnicodeDecodeError:
+            print("utf-8 codec can't decode byte 0xfa in position 0: invalid start byte")
         # code for debugging #
         # user_info = {
         #     'unique_key': request.form.get('unique_key'),
@@ -241,7 +254,17 @@ def user_signup():
         #     'city': request.form.get('city')
         # }
         # print(rj)
-        rj = request.json
+        rj = {}
+        try:
+            rj = {
+                'uname': aes_cipher.decrypt(request.json['uname']),
+                'pword': aes_cipher.decrypt(request.json['pword']),
+                'email': aes_cipher.decrypt(request.json['email']),
+                'address': aes_cipher.decrypt(request.json['address']),
+                'city': aes_cipher.decrypt(request.json['city'])
+            }
+        except UnicodeDecodeError:
+            print("utf-8 codec can't decode byte 0xfa in position 0: invalid start byte")
         print(rj)
         if not rj or 'uname' not in rj:
             print('empty file')
@@ -256,7 +279,7 @@ def user_signup():
             return jsonify({'user_info': {}, 'signup_state': False,
                             'description': 'user name already existed'}), 201
         for u in user_manager.check_database():
-            if rj['email'] == u[5]:
+            if rj['email'] == u[3]:
                 return jsonify({'user_info': {}, 'signup_state': False,
                                 'description': 'email already occupied by another account'}), 201
 
@@ -308,23 +331,28 @@ def user_choose_tags():
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def user_post_email():
     verify_headers(request.headers)
-    if read_user_header(request.headers) == -1:
-        abort(403)
+    # if read_user_header(request.headers) == -1:
+    #     abort(403)
     if not request.json or 'email' not in request.json:
         abort(400)
-    email = request.json['email']
-    if not email or not validate_email(email, verify=True):
-        return jsonify({'sending state': False, 'description': 'email not valid'})
-    link = request.json['link']
-    send_email(email, link)
-    return jsonify({'sending state': True, 'description': 'email sent'})
+    email = aes_cipher.decrypt(request.json['email'])
+    if not email or not validate_email(email, verify=False):
+        print("error 1")
+        return jsonify({'sending_state': False, 'description': 'email not valid'}), 201
+    if not user_manager.return_user_data_by_email(email):
+        print('error 2')
+        return jsonify({'sending_state': False,
+                        'description': 'no current user uses this email'}), 201
+    captcha = aes_cipher.decrypt(request.json['captcha'])
+    send_email(email, captcha)
+    return jsonify({'sending_state': True, 'description': 'email sent'}), 201
 
 
-def send_email(email, link):
+def send_email(email, mail_content):
     sender = 'parishangout@gmail.com'
     receivers = [email]
 
-    message = MIMEText('EMAIL SENDING TEST: ' + link, 'plain', 'utf-8')
+    message = MIMEText('EMAIL SENDING TEST: ' + mail_content, 'plain', 'utf-8')
     message['From'] = Header("ParisHangOut", 'utf-8')
     message['To'] = Header(email, 'utf-8')
     message['Subject'] = Header('Email from Paris Hang Out Website', 'utf-8')
@@ -338,7 +366,7 @@ def send_email(email, link):
     except smtplib.SMTPException:
         print("Error: email not sent")
         abort(404)
-    # to do
+
 
 
 @app.route('/api/v1.0/Users/reset_password', methods=['POST'])
@@ -346,15 +374,16 @@ def send_email(email, link):
 def user_reset_password():
     verify_headers(request.headers)
     if request.method == 'POST':
-        if not request.json or 'uname' not in request.json:
+        if not request.json or 'pword' not in request.json:
             abort(400)
-        if request.json['uname'] in user_manager.return_usernames():
-            return jsonify({'reset state': False, 'description': 'user not found'})
-        if request.json['new_pword'] != request.json['rep_pword']:
-            return jsonify({'reset state': False, 'description': 'These two passwords entered do not match'})
-        user_manager.modify_password(request.json['uname'], request.json['new_pword'])
-        return jsonify({'reset state': False})
-    # to do
+        email = aes_cipher.decrypt(request.json['email'])
+        pword = aes_cipher.decrypt(request.json['pword'])
+        if not user_manager.return_user_data_by_email(email):
+            return jsonify({'reset_state': False, 'description': 'user not found'}), 201
+        if pword == user_manager.return_user_data_by_email(email)[0][2]:
+            return jsonify({'reset_state': False, 'description': 'should not repeat the old password'}), 201
+        user_manager.modify_password(user_manager.return_user_data_by_email(email)[0][3], pword)
+        return jsonify({'reset_state': True, 'description': 'password updated'}), 201
 
 
 @app.route('/api/v1.0/Events/search', methods=['POST'])
@@ -368,9 +397,7 @@ def event_search():
         if isinstance(search, tuple) or isinstance(search, list) or isinstance(search, dict):
             abort(404)
         search_result = event_manager.search_key_words(search)
-        if not search_result:
-            abort(404)
-        return jsonify({'events': search_result})
+        return jsonify({'event': search_result})
     else:
         abort(404)
 
@@ -383,7 +410,6 @@ def user_rating():
     :param event_id:
     :return:
     """
-    print(request.headers)
     verify_headers(request.headers)
     if request.method == 'GET':
         return '111'
@@ -400,14 +426,14 @@ def user_rating():
         }
         if not isinstance(rate_info['event_id'], int) or not isinstance(rate_info['rate'], int):
             raise TypeError
-        rcmd_manager.add_recommendation(user_header, rate_info['event_id'], rate_info['rate'])
+        rating_manager.add_rating(user_header, rate_info['event_id'], rate_info['rate'])
         return jsonify({'rating state': True})
         # to do
 
 
 if __name__ == '__main__':
 
-    print(host)
+    # print(host)
     app.run(debug=True, host=host, port=8080)
     # send_email('jiahao.lu@student-cs.fr','www.testlink.com')
     # print(isinstance(validate_email('zhuofanyu666@gmail.com'),bool))

@@ -101,7 +101,7 @@ class UserDBManager:
         all_users = self.check_database()
         result = []
         for user in all_users:
-            if user[5] == email:
+            if user[3] == email:
                 result.append(user)
         return result
 
@@ -126,6 +126,29 @@ class UserDBManager:
             raise Exception("Fatal error occurred two ids for one username")
 
         return user_id[0][0]
+
+    def return_user_by_id(self, user_id):
+
+        """
+            This function takes in a user id and returns a user!
+            The user id must all be unique
+            We check the creation of user id to avoid duplicates
+        """
+        self.dbconnect()
+        sql_command = """
+                               SELECT *
+                               FROM Users
+                               WHERE user_id='{0}'
+                           """.format(user_id)
+        self.controller.execute(sql_command)
+        users = self.controller.fetchall()
+        self.dbdeconnect()
+        if len(users) == 0:
+            return []
+        if (len(users) > 1):
+            raise Exception("Fatal error occurred two users for one user id")
+
+        return users[0]
 
     def return_usernames(self):
 
@@ -180,6 +203,21 @@ class UserDBManager:
         else:
             return False
 
+    def modify_password(self, mail, newpw):
+        """
+                    This function modify the password for the user
+        """
+        self.dbconnect()
+        sql_command = """
+                            UPDATE Users SET pword = ?
+                            WHERE email = ?
+                    """
+        self.controller.execute(sql_command, (newpw, mail))
+        self.connection.commit()
+        self.dbdeconnect()
+        print('updated user: ', self.return_user_data_by_email(mail))
+
+
 
     def check_database(self):
         # Returns everything in it
@@ -231,14 +269,15 @@ class UserDBManager:
 
 if __name__ == "__main__":
     userDBManager = UserDBManager()
-    print(userDBManager.check_database())
+    userDBManager.modify_password('jiahao.lu@student-cs.fr', 'newpw')
+    # print(userDBManager.check_database())
     # email = 'lujiahao8146@gmail.com'
     # print(userDBManager.return_user_data_by_email(email))
     # print(userDBManager.email_authentication(email,'nopw'))
     # print(userDBManager.return_user_data('who'))
     # userDBManager.create_new_user('who', 'nopw', '123@gmail.com')
     # userDBManager.create_new_user('who2', 'nopw', 'lujiahao8146@gmail.com')
-    # userDBManager.create_new_user('Lu','withpw','jiaohao.li@student-cs.fr')
+    # userDBManager.create_new_user('Lu1','withpw','jiahao.lu@student-cs.fr')
     # userDBManager.delete_user_table()
     # userDBManager.drop_table()
     # print(userDBManager.return_usernames())
