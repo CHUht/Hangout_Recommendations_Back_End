@@ -172,7 +172,7 @@ class UserRatingManager:
 
 if __name__ == "__main__":
     userRatingManager = UserRatingManager()
-    # print(userRatingManager.check_database())
+    print(userRatingManager.check_database())
     # userRatingManager.add_rating(0,0,1)
     # userRatingManager.add_rating(0,1,2)
     # userRatingManager.add_rating(0,2,5)

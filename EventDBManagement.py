@@ -17,6 +17,7 @@ class EventsDBManager:
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
         self.events_ids = self.retrieve_event_ids()
+        self.lock = Lock()
 
     def add_event(self, event_id, title, category, price, description,
                   link, telephone, tags, address_street, address_city,
@@ -433,6 +434,37 @@ class EventsDBManager:
                     DROP TABLE Events;
                 """
         self.connection.execute(sql_command)
+
+    def return_all_events(self):
+        """
+            Returns the whole database
+            This is done to get the recommendations from the user
+        """
+        sql_command = """
+                        SELECT *
+                        FROM Events
+                    """
+        with self.lock:
+            self.controller.execute(sql_command)
+            events = self.controller.fetchall()
+
+        return events
+
+    def return_all_events_date_location(self):
+
+        """
+            Returns all the events location and stored date
+            This is done for the filtering in the recommendation setting
+        """
+        sql_command = """
+                        SELECT event_id, date_end, latitude, longitude
+                        FROM Events
+                    """
+        with self.lock:
+            self.controller.execute(sql_command)
+            events = self.controller.fetchall()
+
+        return events
 
     def check_database(self):
 

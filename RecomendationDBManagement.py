@@ -1,5 +1,6 @@
 import sqlite3
 from BackendAPIStaticList import singleton
+from threading import Lock
 
 @singleton
 class RecomendationDBManager:
@@ -12,6 +13,7 @@ class RecomendationDBManager:
         """
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
+        self.lock = Lock()
 
     def add_recommendation(self, user_id, event_id, score):
 
@@ -74,14 +76,29 @@ class RecomendationDBManager:
                 """
         self.controller.execute(sql_command)
 
-        for col in self.controller.fetchall():
+        request = self.controller.fetchall()
+        for col in request:
             print(col)
 
+    def delete_recommendations_from_user(self, user_id):
+        """
+            This function deletes all recommendations from a specific user
+            This is done to update the recommendations!
+        """
 
-    def delete_ratings_table(self):
+        sql_command = """
+                        DELETE FROM UserRecommendations
+                        WHERE user_id = '{0}'
+                    """.format(user_id)
+
+        with self.lock:
+            self.controller.execute(sql_command)
+            self.connection.commit()
+
+    def delete_recommendations_table(self):
         """
             Created for debuging
-            Deletes the data in the user ratings!
+            Deletes the data in the user recommendations!
         """
 
         sql_command = """
@@ -95,6 +112,7 @@ class RecomendationDBManager:
                     """
         self.controller.execute(sql_command)
         self.connection.commit()
+
     def drop_table(self):
         """
             Created for debuging
@@ -107,8 +125,9 @@ class RecomendationDBManager:
         self.connection.execute(sql_command)
 
 if __name__ == "__main__":
+
     rmanager = RecomendationDBManager()
-    rmanager.add_recommendation(0, 2270,5)
+    # rmanager.delete_recommendations_table()
     print(rmanager.check_database())
-    print(rmanager.get_recommendations_for_user(0))
+
 

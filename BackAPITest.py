@@ -5,6 +5,7 @@ from EventDBManagement import *
 from UserDBManagement import *
 from RecomendationDBManagement import *
 from UserCatesDBManagement import *
+from UserRatingDBManagement import UserRatingManager
 from geopy.geocoders import Nominatim
 # from vali_mail import validate_email
 from BackendAPIStaticList import *
@@ -13,6 +14,8 @@ from email.mime.text import MIMEText
 from email.header import Header
 import re
 from validate_email import validate_email
+from RecommendEvents import generate_user_recommendations
+from threading import Thread
 #
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -23,6 +26,7 @@ user_manager = UserDBManager()
 event_manager = EventsDBManager()
 rcmd_manager = RecomendationDBManager()
 user_cates_Manager = UserCatesManager()
+Ratings = UserRatingManager()
 geolocator = Nominatim(user_agent="Hangout Recommendation")
 
 
@@ -42,9 +46,11 @@ def type_error_exception_handler(e):
 def all_exception_handler(e):
     return jsonify({'message': '404 not found'})
 
+"""
 @app.errorhandler(204)
 def all_exception_handler(e):
     return jsonify({'message': 'request recieved, but nothing to reply'})
+"""
 
 @app.errorhandler(403)
 def all_exception_handler(e):
@@ -403,6 +409,35 @@ def user_rating():
         rcmd_manager.add_recommendation(user_header, rate_info['event_id'], rate_info['rate'])
         return jsonify({'rating state': True})
         # to do
+
+@app.route('/api/v1.0/ComputeRecomendations', methods=['GET'])
+@cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
+def compute_recommendations():
+
+    passkey = request.args.get('passkey')
+    print(passkey)
+    user_id = int(request.args.get('user_id'))
+    print(user_id)
+
+    if not(passkey and user_id is not None):
+        return jsonify({"Fail": "Arguments Missing"})
+
+    if passkey == "fafa":
+        ratings = Ratings.get_ratings_from_user(user_id)
+
+        print(ratings)
+
+        if ratings == []:
+            return jsonify({"Fail": "User does not exist"})
+
+        recommend_thread = Thread(target=generate_user_recommendations
+                                  , args=(event_manager, ratings, user_id, rcmd_manager))
+        recommend_thread.start()
+    else:
+        return jsonify({"Fail": "Wrong passkey"})
+
+    return jsonify({"OK": "Computations recommended"})
+
 
 
 if __name__ == '__main__':
