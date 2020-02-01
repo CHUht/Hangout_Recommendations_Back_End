@@ -396,15 +396,6 @@ class EventsDBManager:
         large_category = self.controller.fetchall()[0][0]
         return large_category
 
-    def return_several_events_by_ids(self,list_of_ids:str):
-        for single_id in list_of_ids:
-            if type(single_id) != int:
-                raise ValueError('illegal input, not integer')
-        events = []
-        for single_id in list_of_ids:
-            events.append(self.get_event_with_nearest(single_id))
-        return events
-
     def delete_Event_table(self):
         """
             Created for debuging
@@ -469,9 +460,9 @@ if __name__ == "__main__":
     # print(eventsDBManager.check_database())
     # print(eventsDBManager.number_of_events())
     # print(eventsDBManager.get_large_categoty(2270))
-    diff_events = eventsDBManager.return_several_events_of_a_cate(1)
-    print(len(diff_events))
-    # print(eventsDBManager.get_event_with_nearest(99746))
+    # diff_events = eventsDBManager.return_several_events_of_a_cate(1)
+    # print(len(diff_events))
+    print(eventsDBManager.get_event_with_nearest(99746))
     # print(eventsDBManager.return_several_events_of_a_cate(2))
     # result = eventsDBManager.search_key_words('Mange')
     # print(len(result),result)
