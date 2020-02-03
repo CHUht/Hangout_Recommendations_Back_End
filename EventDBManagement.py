@@ -8,14 +8,20 @@ from threading import Lock
 
 @singleton
 class EventsDBManager:
+
+    def dbconnect(self):
+        self.connection = sqlite3.connect("Database.db", check_same_thread=False)
+        self.controller = self.connection.cursor()
+
+    def dbdeconnect(self):
+        self.connection.close()
+
     def __init__(self):
         """
             Here we start all the points necessary to start this class
             We need to connect to the database
             and get the last id!
         """
-        self.connection = sqlite3.connect("Database.db", check_same_thread=False)
-        self.controller = self.connection.cursor()
         self.events_ids = self.retrieve_event_ids()
 
     def add_event(self, event_id, title, category, price, description,
@@ -37,6 +43,8 @@ class EventsDBManager:
                   ?, ?, ?, ?, ?, ?,
                   ?, ?, ?, ?, ?, ?);
                 """
+
+        self.dbconnect()
         values = (event_id, title, category, price, description,
                   link, telephone, tags, address_street, address_city,
                   address_zipcode, date, date_end, contact_mail, facebook, website,
@@ -44,6 +52,7 @@ class EventsDBManager:
 
         self.controller.execute(sql_command, values)
         self.connection.commit()
+        self.dbdeconnect()
 
     def remove_event(self, event_id):
 
