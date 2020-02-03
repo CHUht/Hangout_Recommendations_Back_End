@@ -6,6 +6,7 @@ from UserDBManagement import *
 from RecomendationDBManagement import *
 from UserRatingDBManagement import *
 from UserCatesDBManagement import *
+from RecommendEvents import generate_user_recommendations
 from geopy.geocoders import Nominatim
 # from vali_mail import validate_email
 from BackendAPIStaticList import *
@@ -14,6 +15,9 @@ from email.mime.text import MIMEText
 from email.header import Header
 import re
 from validate_email import validate_email
+import time
+from threading import Thread
+import requests
 
 
 app = Flask(__name__)
@@ -188,6 +192,10 @@ def user_login():
             if user_manager.email_authentication(user_info['unique_key'], user_info['pword']):
                 online_id = user_manager.return_user_data_by_email(user_info['unique_key'])[0][0]
                 online_user = user_manager.return_user_data_by_email(user_info['unique_key'])[0][1]
+
+                # Compute recommendations when user log in
+                requests.get( url_root + '/api/v1.0/ComputeRecomendations?passkey=fafa&user_id=' + str(online_id))
+
                 return jsonify({'user_online': online_id, 'uname': online_user, 'login_state': True,
                                 'description': 'successfully log in'}), 201
             else:
@@ -198,8 +206,13 @@ def user_login():
                 return jsonify({'user_online': 'null', 'uname': 'null', 'login_state': False,
                                 'description': 'user not found'}), 201
             if user_manager.user_authentication(user_info['unique_key'], user_info['pword']):
+                online_id = user_manager.return_user_id(user_info['unique_key'])
+
+                # Compute recommendations when user log in
+                requests.get( url_root + '/api/v1.0/ComputeRecomendations?passkey=fafa&user_id=' + str(online_id))
+
                 return jsonify(
-                    {'user_online': user_manager.return_user_id(user_info['unique_key']),
+                    {'user_online': online_id,
                      'uname': user_info['unique_key'], 'login_state': True,
                      'description': 'successfully log in'}), 201
             else:
@@ -358,7 +371,7 @@ def send_email(email, mail_content):
     message['Subject'] = Header('Email from Paris Hang Out Website', 'utf-8')
 
     try:
-        smtpObj = smtplib.SMTP_SSL()
+        smtpObj = smtplib.SMTP_SSL('smtp.gmail.com')
         smtpObj.connect('smtp.gmail.com', 465)
         smtpObj.login('lujiahao8146@gmail.com', 'GOOGLE274@')
         smtpObj.sendmail(sender, receivers, message.as_string())
@@ -421,14 +434,40 @@ def user_rating():
             abort(404)
         print(request.json)
         rate_info = {
-            'event_id': request.json['event_id'],
-            'rate': request.json['rate']
+            'event_id': int(request.json['event_id']),
+            'rate': int(request.json['rate']),
+            'timestamp': int(time.time())
         }
-        if not isinstance(rate_info['event_id'], int) or not isinstance(rate_info['rate'], int):
-            raise TypeError
-        rating_manager.add_rating(user_header, rate_info['event_id'], rate_info['rate'])
+
+        print(rate_info)
+
+        rating_manager.add_rating(user_header, rate_info['event_id'], rate_info['rate'], rate_info['timestamp'])
         return jsonify({'rating state': True})
         # to do
+
+
+@app.route('/api/v1.0/ComputeRecomendations', methods=['GET'])
+@cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
+def compute_recommendations():
+
+    passkey = request.args.get('passkey')
+    user_id = int(request.args.get('user_id'))
+
+    if not(passkey and user_id is not None):
+        return jsonify({"Fail": "Arguments Missing"})
+
+    if passkey == "fafa":
+        ratings = rating_manager.get_ratings_from_user(user_id)
+        if ratings == []:
+            return jsonify({"Fail": "User does not exist"})
+
+        recommend_thread = Thread(target=generate_user_recommendations
+                                  , args=(event_manager, ratings, user_id, rcmd_manager))
+        recommend_thread.start()
+    else:
+        return jsonify({"Fail": "Wrong passkey"})
+
+    return jsonify({"OK": "Computations recommended"})
 
 
 if __name__ == '__main__':

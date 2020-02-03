@@ -18,12 +18,12 @@ class UserRatingManager:
     def dbdeconnect(self):
         self.connection.close()
 
-    def add_rating(self, user_id, event_id, rating):
+    def add_rating(self, user_id, event_id, rating, timestamp):
         """
             This function adds a event rating made by the user to the database
         """
         self.dbconnect()
-        if type(user_id) != int or type(event_id) != int or type(rating) != int:
+        if type(user_id) != int or type(event_id) != int or type(timestamp) != int:
             raise TypeError("Values must be integers")
         # to verify if this event for this user has already been rated. if yes, override it. else, insert it into database
         sql_command = """
@@ -39,11 +39,11 @@ class UserRatingManager:
         # print(existing_rating)
         if len(existing_rating) == 0:
             sql_command = """
-                        INSERT INTO UserRating(user_id, event_id, rating)
-                        VALUES ( ? , ? , ?);
+                        INSERT INTO UserRating(user_id, event_id, rating, timestamp)
+                        VALUES ( ? , ? , ?,  ?);
                     """
 
-            values = (user_id, event_id, rating)
+            values = (user_id, event_id, rating, timestamp)
             self.controller.execute(sql_command, values)
             self.connection.commit()
         else:
@@ -51,11 +51,12 @@ class UserRatingManager:
                         UPDATE UserRating SET rating = {0}
                         WHERE user_id = '{1}'
                         AND event_id = '{2}'
-                    """.format(rating,user_id,event_id)
+                        AND timestamp = '{3}'
+                    """.format(rating,user_id,event_id, timestamp)
             self.controller.execute(sql_command)
             self.connection.commit()
         self.dbdeconnect()
-        print("recommendation added --- user:{0} --- event:{1}".format(user_id, event_id))
+        print("Rating added --- user:{0} --- event:{1}".format(user_id, event_id))
 
     def remove_rating(self, user_id, event_id):
 
@@ -88,7 +89,7 @@ class UserRatingManager:
 
         self.dbconnect()
         sql_command = """
-                        SELECT event_id, rating
+                        SELECT event_id, rating, timestamp
                         FROM UserRating
                         WHERE user_id = '{0}'
                     """.format(user_id)
