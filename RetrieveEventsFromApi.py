@@ -2,7 +2,14 @@ from urllib import request
 from geopy.geocoders import Nominatim
 import json
 from EventDBManagement import EventsDBManager
+import nltk
+from nltk.tokenize import RegexpTokenizer
+from nltk.corpus import stopwords
+from gensim import corpora, models, similarities
+import gensim
 import re
+import numpy as np
+import pickle as pkl
 
 
 def cleanhtml(raw_html):
@@ -94,7 +101,107 @@ def data_clean(raw_data,Events,geolocator):
         print(i)
 
 
+def generate_similarity_matrix(Events):
+
+    """
+        Start by retrieving all events from the database
+    """
+    events = Events.return_all_events()
+    events = [(event[0], event[4]) for event in events]
+
+    """
+        The event id is different from the position of the event on the similarity matrix
+        So we must create a hash relation to translate between indices
+    """
+    id_to_index = {}
+    index_to_id = {}
+    for i,event in enumerate(events):
+        id_to_index[event[0]] = i
+        index_to_id[i] = event[0]
+
+
+
+    """
+        Declare the events as a pandas dataframe
+    """
+
+    def get_human_names(text):
+        """
+        :param text: receives a text
+        :return: get's human names from that text so we can remove them
+        """
+        tokens = nltk.tokenize.word_tokenize(text)
+        pos = nltk.pos_tag(tokens)
+        sentt = nltk.ne_chunk(pos, binary=False)
+        for word in sentt:
+            try:
+                if word.label() == "PERSON" and word[0][0].lower() not in stop_words:
+                    stop_words.append(word[0][0].lower())
+            except AttributeError:
+                pass
+
+    """
+        List of stop words in french
+        they must be removed for the NLP 
+        and the tokenizer to keep only the useful letters and numbers 
+    """
+    stop_words = list(stopwords.words('french'))
+    tokenizer = RegexpTokenizer(r'\w+')
+
+    """
+        Here we tokenize the events remove the names and create the texts structure
+        The texts will be used to process the similarities between the rated events and all events!
+    """
+    texts = []
+    for i,event in enumerate(events):
+        get_human_names(event[1])
+        event_des = event[1]
+        event_des = tokenizer.tokenize(event_des)
+        event_des = [x.lower() for x in event_des]
+        event_des = [x for x in event_des if not x in stop_words]
+        texts.append(event_des)
+    """
+        Create the dictionary with all the words on the events
+        And the corpus (number of features of each document!)
+    """
+    dictionary = corpora.Dictionary(texts)
+    corpus = [dictionary.doc2bow(text) for text in texts]
+
+    """
+        Apply the tfidf model to the corpus
+        And them apply it to the feature map
+    """
+    tfidf = models.TfidfModel(corpus)
+    corpus_tfidf = tfidf[corpus]
+
+    # Use feature reduction by applying the lsi model
+    lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=50)
+    index = similarities.MatrixSimilarity(lsi[corpus_tfidf])
+
+    """
+        Here we finally process the similarities between the events
+        The similarity is a measurement of how close the description of the events are!
+        If they are exactly equal the similarity is one
+    """
+    total_sims = []  # storage of all similarity vectors to analysis
+    for i, doc in enumerate(corpus_tfidf):
+        vec_lsi = lsi[doc]  # convert the vector to LSI space
+        sims = index[vec_lsi]  # perform a similarity vector against the corpus
+
+        total_sims.append(sims)
+    total_sims = np.asarray(total_sims)
+
+    similarity_matrix = {}
+    similarity_matrix["index_to_id"] = index_to_id
+    similarity_matrix["id_to_index"] = id_to_index
+    similarity_matrix["similarities"] = total_sims
+
+    pkl.dump(similarity_matrix, open("similarities.pkl", "wb"))
+
+    exit()
+
 def download_and_clean():
+
     geolocator = Nominatim(user_agent="Hangout Recommendation")
     Events = EventsDBManager()
 
@@ -104,6 +211,9 @@ def download_and_clean():
     # print(Events.get_tags_statistics())
 
     # Events.check_database()
+    generate_similarity_matrix(Events)
 
 if __name__ == "__main__":
+    # download_and_clean()
+    Events = EventsDBManager()
     download_and_clean()

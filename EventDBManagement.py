@@ -65,8 +65,10 @@ class EventsDBManager:
                        WHERE Events.event_id = '{0}'
                     """.format(event_id)
 
+        self.dbconnect()
         self.controller.execute(sql_command)
         self.connection.commit()
+        self.dbdeconnect()
 
     def retrieve_event_ids(self):
         """
@@ -77,11 +79,13 @@ class EventsDBManager:
                         FROM Events;
                     """
 
+        self.dbconnect()
         self.controller.execute(sql_command)
-        all_ids = self.controller.fetchall()
+        all_ids = self.controller.fetchall().copy()
         all_ids = sorted(all_ids)
         for i in range(len(all_ids)):
             all_ids[i] = all_ids[i][0]
+        self.dbdeconnect()
         return all_ids
 
     def return_event_no_nearest(self, event_id):
@@ -96,8 +100,9 @@ class EventsDBManager:
                         WHERE event_id = '{0}'
                     """.format(event_id)
 
+        self.dbconnect()
         self.controller.execute(sql_command)
-        query_result = self.controller.fetchall()
+        query_result = self.controller.fetchall().copy()
         if len(query_result) == 0:
             return []
         event = {'event_id': query_result[0][0], 'title': query_result[0][1], 'category': query_result[0][2],
@@ -108,6 +113,7 @@ class EventsDBManager:
                  'facebook': query_result[0][14], 'website': query_result[0][15], 'cover_url': query_result[0][16],
                  'latitude': query_result[0][17], 'longitude': query_result[0][18], 'occurrences':query_result[0][19],
                  'large_category':query_result[0][20],'small_category':query_result[0][21]}
+        self.dbdeconnect()
 
         return event
 
@@ -116,6 +122,7 @@ class EventsDBManager:
             This function returns several different events, at least 2 events for each large category
 
         """
+        self.dbconnect()
         if number_of_events < 10 or type(number_of_events) != int or number_of_events > 100:
             raise IndexError('number of events should >= 10, and  number of event should be small')
         events_id = []
@@ -127,8 +134,9 @@ class EventsDBManager:
                     """
 
         self.controller.execute(sql_command)
-        query_result = self.controller.fetchall()
+        query_result = self.controller.fetchall().copy()
         # print(query_result)
+        self.dbdeconnect()
         cleaned_result = []
         for id,large_cate in query_result:
             cleaned_result.append((id,large_cate))
@@ -173,6 +181,7 @@ class EventsDBManager:
             raise IndexError('number of events should be a positive integer,and  number of event should be small')
         cates = self.get_catagories_statistics() # dict. key: large categories, value: number of it
 
+        self.dbconnect()
         sql_command = """
                         SELECT event_id
                         FROM Events
@@ -180,10 +189,11 @@ class EventsDBManager:
                     """.format(cate_map[cate_type])
 
         self.controller.execute(sql_command)
-        ids_of_this_cate = self.controller.fetchall()
+        ids_of_this_cate = self.controller.fetchall().copy()
         for i in range(len(ids_of_this_cate)):
             ids_of_this_cate[i] = ids_of_this_cate[i][0]
         # print(query_result)
+        self.dbdeconnect()
         events_id = []
         while(len(events_id) < number_of_events):
             rand_id = choice(ids_of_this_cate)
@@ -215,11 +225,13 @@ class EventsDBManager:
                         WHERE event_id = {0};
                     """.format(id)
 
+        self.dbconnect()
         self.controller.execute(sql_command)
-        query_result = self.controller.fetchall()
+        query_result = self.controller.fetchall().copy()
         if len(query_result) == 0:
             raise ValueError('illegal input id')
         query_result = query_result[0]
+        self.dbdeconnect()
         now = strftime("%Y-%m-%dT%H:%M:%S", localtime())
         # print(query_result)
         pattern = re.compile('(20.*?)_(20.*?);')
@@ -345,13 +357,15 @@ class EventsDBManager:
                         FROM Events
                     """
 
+        self.dbconnect()
         self.controller.execute(sql_command)
-        query_result = self.controller.fetchall()
+        query_result = self.controller.fetchall().copy()
         category_labels_large = {}
         category_labels_small = {}
         for i in query_result:
             category_labels_large[i[0]] = category_labels_large.get(i[0],0) + 1
             category_labels_small[i[1]] = category_labels_small.get(i[1],0) + 1
+        self.dbdeconnect()
 
         # print('large categories:---------------------')
         # for key,value in category_labels_large.items():
@@ -374,8 +388,9 @@ class EventsDBManager:
                         FROM Events
                     """
 
+        self.dbconnect()
         self.controller.execute(sql_command)
-        query_result = self.controller.fetchall()
+        query_result = self.controller.fetchall().copy()
         labels_list = []
         for i in query_result:
             list_each = re.split(';',i[0])
@@ -387,6 +402,7 @@ class EventsDBManager:
         #     print(key,value)
         number_labels.pop('NULL')
         number_labels.pop('English')
+        self.dbdeconnect()
         return list(number_labels.keys())
 
     def get_large_categoty(self, id):
@@ -401,9 +417,20 @@ class EventsDBManager:
                         WHERE event_id = {0}
                     """.format(id)
 
+        self.dbconnect()
         self.controller.execute(sql_command)
-        large_category = self.controller.fetchall()[0][0]
+        large_category = self.controller.fetchall().copy()[0][0]
+        self.dbdeconnect()
         return large_category
+
+    def return_several_events_by_ids(self,list_of_ids:str):
+        for single_id in list_of_ids:
+            if type(single_id) != int:
+                raise ValueError('illegal input, not integer')
+        events = []
+        for single_id in list_of_ids:
+            events.append(self.get_event_with_nearest(single_id))
+        return events
 
     def delete_Event_table(self):
         """
@@ -411,6 +438,7 @@ class EventsDBManager:
             Deletes the data in the user table!
         """
 
+        self.dbconnect()
         sql_command = """
                         DELETE FROM Events;
                     """
@@ -422,6 +450,7 @@ class EventsDBManager:
                     """
         self.controller.execute(sql_command)
         self.connection.commit()
+        self.dbdeconnect()
 
     def drop_table(self):
         """
@@ -429,10 +458,46 @@ class EventsDBManager:
             Drops the table!
         """
 
+        self.dbconnect()
         sql_command = """
                     DROP TABLE Events;
                 """
         self.connection.execute(sql_command)
+        self.dbdeconnect()
+
+    def return_all_events(self):
+        """
+            Returns the whole database
+            This is done to get the recommendations from the user
+        """
+        self.dbconnect()
+        sql_command = """
+                        SELECT *
+                        FROM Events
+                    """
+        self.controller.execute(sql_command)
+        events = self.controller.fetchall().copy()
+        self.dbdeconnect()
+
+        return events
+
+    def return_all_events_date_location(self):
+
+        """
+            Returns all the events location and stored date
+            This is done for the filtering in the recommendation setting
+        """
+        sql_command = """
+                        SELECT event_id, date_end, latitude, longitude
+                        FROM Events
+                    """
+
+        self.dbconnect()
+        self.controller.execute(sql_command)
+        events = self.controller.fetchall().copy()
+        self.dbdeconnect()
+
+        return events
 
     def check_database(self):
 
@@ -445,6 +510,7 @@ class EventsDBManager:
                     SELECT *
                     FROM Events
                 """
+        self.dbconnect()
         self.controller.execute(sql_command)
 
         # for col in self.controller.fetchall():
@@ -452,8 +518,9 @@ class EventsDBManager:
         #     for e in col:
         #         print(e)
         #     print()
-        return self.controller.fetchall()
-
+        toreturn = self.controller.fetchall().copy()
+        self.dbdeconnect()
+        return toreturn
 
 if __name__ == "__main__":
 
@@ -469,9 +536,9 @@ if __name__ == "__main__":
     # print(eventsDBManager.check_database())
     # print(eventsDBManager.number_of_events())
     # print(eventsDBManager.get_large_categoty(2270))
-    # diff_events = eventsDBManager.return_several_events_of_a_cate(1)
-    # print(len(diff_events))
-    print(eventsDBManager.get_event_with_nearest(99746))
+    diff_events = eventsDBManager.return_several_events_of_a_cate(1)
+    print(len(diff_events))
+    # print(eventsDBManager.get_event_with_nearest(99746))
     # print(eventsDBManager.return_several_events_of_a_cate(2))
     # result = eventsDBManager.search_key_words('Mange')
     # print(len(result),result)

@@ -168,6 +168,23 @@ class UserDBManager:
         self.dbdeconnect()
         return unames
 
+    def return_emails(self):
+
+        """
+            This function returns the list of emails from all the users
+            This is done to not have repeated emails on the database
+        """
+        self.dbconnect()
+        sql_command = """
+                        SELECT email
+                        FROM Users
+                    """
+        self.controller.execute(sql_command)
+        emails = []
+        for value in self.controller.fetchall():
+            emails.append(value[0])
+        self.dbdeconnect()
+        return emails
 
     def user_authentication(self, uname, password):
         """
@@ -269,6 +286,9 @@ class UserDBManager:
 
 if __name__ == "__main__":
     userDBManager = UserDBManager()
+    # userDBManager.delete_user_table()
+    print(userDBManager.check_database())
+    exit()
     userDBManager.modify_password('jiahao.lu@student-cs.fr', 'newpw')
     # print(userDBManager.check_database())
     # email = 'lujiahao8146@gmail.com'
