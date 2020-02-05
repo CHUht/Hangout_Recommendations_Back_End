@@ -76,7 +76,7 @@ url_rsc = {r"/": {"origins": url_root},
            url_api + r'/Users/reset_password': {'origins': url_root + url_api + '/Users/reset_password'},
            url_api + r'/Events/search': {'origins': url_root + url_api + '/Events/search'},
            url_api + r'/Rating': {'origins': url_root + url_api + '/Rating'},
-           url_api + r'/ComputeRecomendations': {'origins': url_root + url_api + '/ComputeRecomendations'}
+           url_api + r'/ComputeRecommendations': {'origins': url_root + url_api + '/ComputeRecommendations'}
            }
 """
 r"/": root url for testing, no real use
@@ -170,9 +170,9 @@ if __name__ == '__main__':
     myKey = "WuHan,GoodLuck!!"
     myIV = "+wx:lzh295256908"
     pc = AesCrypto(myKey, myIV)
-    # code = pc.encrypt('武汉')
+    code = pc.encrypt('@@@')
     # code = 'U2FsdGVkX18wF8F8K85745zwEtxsulXaoVYlxOvQIZBJYayIQL5+vf69vQmG81mI'
-    code = 'RpS/sdWm1xFU8ZVfuBVrKg=='
+    #code = 'RpS/sdWm1xFU8ZVfuBVrKg=='
     d = pc.decrypt(code)
     print(code)
     print(d)

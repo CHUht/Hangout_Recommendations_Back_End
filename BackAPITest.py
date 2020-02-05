@@ -14,7 +14,7 @@ from email.header import Header
 import re
 from validate_email import validate_email
 import time
-from threading import Thread
+from threading import Thread, Lock
 import requests
 
 
@@ -44,8 +44,8 @@ def index_error_exception_handler(e):
     :param e: the error event
     :return: json containing error info
     """
-    print('index error: ', e.description)
-    return jsonify({'message': e.description})
+    print('index error ')
+    return jsonify({'message': "Index Error"})
 
 
 @app.errorhandler(TypeError)
@@ -56,8 +56,8 @@ def type_error_exception_handler(e):
     :param e: the error event
     :return: json containing error info
     """
-    print('type error: ', e.description)
-    return jsonify({'message': e.description})
+    print('type error: ', e)
+    return jsonify({'message': "Type Error"})
 
 
 @app.errorhandler(UnicodeDecodeError)
@@ -68,8 +68,8 @@ def unicode_decode_error_exception_handler(e):
     :param e: the error event
     :return: json containing error info
     """
-    print('unicode decode error: ', e.description)
-    return jsonify({'message': e.description})
+    print('unicode decode error: ', e)
+    return jsonify({'message': " Decode Error "})
 
 
 @app.errorhandler(404)
@@ -267,7 +267,9 @@ def user_login():
             return jsonify({'user_online': 'null', 'uname': 'null', 'login_state': False,
                             'description': 'password should not be empty'}), 201
         # If login by email
-        if re.match(r'.*@\w*\..*', user_info['unique_key']) is not None:
+        if validate_email(user_info['unique_key']):
+            print(user_info)
+
             # Email should be a registered one.
             if not user_manager.return_user_data_by_email(user_info['unique_key']):
                 return jsonify({'user_online': 'null', 'uname': 'null', 'login_state': False,
@@ -278,7 +280,7 @@ def user_login():
                 online_user = user_manager.return_user_data_by_email(user_info['unique_key'])[0][1]
 
                 # Compute recommendations when user log in
-                requests.get(url_root + url_api + '/ComputeRecomendations?passkey=fafa&user_id=' + str(online_id))
+                requests.get(url_root + url_api + '/ComputeRecommendations?passkey=fafa&user_id=' + str(online_id))
 
                 return jsonify({'user_online': online_id, 'uname': online_user, 'login_state': True,
                                 'description': 'successfully log in'}), 201
@@ -289,6 +291,7 @@ def user_login():
         else:
             # User name should be a registered one
             if not user_manager.return_user_data(user_info['unique_key']):
+                print(user_info,'sss')
                 return jsonify({'user_online': 'null', 'uname': 'null', 'login_state': False,
                                 'description': 'user not found'}), 201
             # Password should be valid
@@ -296,7 +299,7 @@ def user_login():
                 online_id = user_manager.return_user_id(user_info['unique_key'])
 
                 # Compute recommendations when user log in
-                requests.get(url_root + url_api + '/ComputeRecomendations?passkey=fafa&user_id=' + str(online_id))
+                requests.get(url_root + url_api + '/ComputeRecommendations?passkey=fafa&user_id=' + str(online_id))
 
                 return jsonify(
                     {'user_online': online_id,
@@ -355,15 +358,7 @@ def user_signup():
         # Check no user already login
         if read_user_header(request.headers) != -1:
             abort(403)
-        # code for debugging #
-        # rj = {
-        #     'uname': request.form.get('new_uname'),
-        #     'pword': request.form.get('new_psw'),
-        #     'email': request.form.get('email'),
-        #     'address': request.form.get('adrs'),
-        #     'city': request.form.get('city')
-        # }
-        # print(rj)
+
         rj = {}
         try:
             rj = {
@@ -383,18 +378,20 @@ def user_signup():
         if not rj['uname'] or not rj['pword'] or not rj['email']:
             return jsonify({'user_info': {}, 'signup_state': False,
                             'description': 'obligatory field(s) missed'}), 201
+
         # Email should be valid
         if not validate_email(str(rj['email']), verify=False):
             return jsonify({'user_info': {}, 'signup_state': False,
                             'description': 'email not validated'}), 201
+
         # Email and uname cannot be the one already used by other users.
         if rj['uname'] in user_manager.return_usernames():
             return jsonify({'user_info': {}, 'signup_state': False,
                             'description': 'user name already existed'}), 201
-        for u in user_manager.check_database():
-            if rj['email'] == u[3]:
-                return jsonify({'user_info': {}, 'signup_state': False,
-                                'description': 'email already occupied by another account'}), 201
+        if rj['email'] in user_manager.return_emails():
+            return jsonify({'user_info': {}, 'signup_state': False,
+                            'description': 'email already occupied by another account'}), 201
+
         # Sign up with Obligatory fields and optional fields
         if rj['address'] != 'null' and rj['city'] != 'null':
             user_manager.create_new_user(
@@ -584,7 +581,7 @@ def user_rating():
         # to do
 
 
-@app.route(url_api + '/ComputeRecomendations', methods=['GET'])
+@app.route(url_api + '/ComputeRecommendations', methods=['GET'])
 @cross_origin(origin=host, headers=['Content-Type', 'Authorization'])
 def compute_recommendations():
     """
@@ -600,8 +597,9 @@ def compute_recommendations():
     # Check authorization key
     if passkey == "fafa":
         ratings = rating_manager.get_ratings_from_user(user_id)
-        if ratings:
-            return jsonify({"Fail": "User does not exist"})
+
+        if not ratings:
+            return jsonify({"Fail": "Cannot compute recommendations with no ratings"})
 
         # Start recommendation generating thread
         recommend_thread = Thread(target=generate_user_recommendations,
