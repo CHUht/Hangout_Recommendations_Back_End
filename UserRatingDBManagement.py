@@ -1,5 +1,6 @@
 import sqlite3
 from BackendAPIStaticList import singleton
+from threading import Lock
 
 @singleton
 class UserRatingManager:
@@ -9,7 +10,7 @@ class UserRatingManager:
             We need to connect to the database
             and get the last id!
         """
-        pass
+        self.lock = Lock()
 
     def dbconnect(self):
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
@@ -22,40 +23,41 @@ class UserRatingManager:
         """
             This function adds a event rating made by the user to the database
         """
-        self.dbconnect()
-        if type(user_id) != int or type(event_id) != int or type(timestamp) != int:
-            raise TypeError("Values must be integers")
-        # to verify if this event for this user has already been rated. if yes, override it. else, insert it into database
-        sql_command = """
-                        SELECT user_id, event_id, rating
-                        FROM UserRating
-                        WHERE user_id = '{0}'
-                        AND event_id = '{1}'
-                    """.format(user_id,event_id)
-
-        self.controller.execute(sql_command)
-        existing_rating = self.controller.fetchall()
-        # print('existing_rating')
-        # print(existing_rating)
-        if len(existing_rating) == 0:
+        with self.lock:
+            self.dbconnect()
+            if type(user_id) != int or type(event_id) != int or type(timestamp) != int:
+                raise TypeError("Values must be integers")
+            # to verify if this event for this user has already been rated. if yes, override it. else, insert it into database
             sql_command = """
-                        INSERT INTO UserRating(user_id, event_id, rating, timestamp)
-                        VALUES ( ? , ? , ?,  ?);
-                    """
+                            SELECT user_id, event_id, rating
+                            FROM UserRating
+                            WHERE user_id = '{0}'
+                            AND event_id = '{1}'
+                        """.format(user_id,event_id)
 
-            values = (user_id, event_id, rating, timestamp)
-            self.controller.execute(sql_command, values)
-            self.connection.commit()
-        else:
-            sql_command = """
-                        UPDATE UserRating SET rating = {0}
-                        WHERE user_id = '{1}'
-                        AND event_id = '{2}'
-                        AND timestamp = '{3}'
-                    """.format(rating,user_id,event_id, timestamp)
             self.controller.execute(sql_command)
-            self.connection.commit()
-        self.dbdeconnect()
+            existing_rating = self.controller.fetchall()
+            # print('existing_rating')
+            # print(existing_rating)
+            if len(existing_rating) == 0:
+                sql_command = """
+                            INSERT INTO UserRating(user_id, event_id, rating, timestamp)
+                            VALUES ( ? , ? , ?,  ?);
+                        """
+
+                values = (user_id, event_id, rating, timestamp)
+                self.controller.execute(sql_command, values)
+                self.connection.commit()
+            else:
+                sql_command = """
+                            UPDATE UserRating SET rating = {0}
+                            WHERE user_id = '{1}'
+                            AND event_id = '{2}'
+                            AND timestamp = '{3}'
+                        """.format(rating,user_id,event_id, timestamp)
+                self.controller.execute(sql_command)
+                self.connection.commit()
+            self.dbdeconnect()
         print("Rating added --- user:{0} --- event:{1}".format(user_id, event_id))
 
     def remove_rating(self, user_id, event_id):
@@ -66,16 +68,17 @@ class UserRatingManager:
 
         if type(user_id) != int or type(event_id) != int:
             raise TypeError("Values must be integers")
-        self.dbconnect()
-        sql_command = """
-                       DELETE FROM UserRating 
-                       WHERE UserRating.user_id = '{0}'
-                       AND UserRating.event_id = '{1}'
-                    """.format(user_id, event_id)
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                           DELETE FROM UserRating 
+                           WHERE UserRating.user_id = '{0}'
+                           AND UserRating.event_id = '{1}'
+                        """.format(user_id, event_id)
 
-        self.controller.execute(sql_command)
-        self.connection.commit()
-        self.dbdeconnect()
+            self.controller.execute(sql_command)
+            self.connection.commit()
+            self.dbdeconnect()
 
     def get_ratings_from_user(self, user_id):
 
@@ -87,16 +90,17 @@ class UserRatingManager:
         if type(user_id) != int:
             raise TypeError("User id must be an int")
 
-        self.dbconnect()
-        sql_command = """
-                        SELECT event_id, rating, timestamp
-                        FROM UserRating
-                        WHERE user_id = '{0}'
-                    """.format(user_id)
-        self.controller.execute(sql_command)
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                            SELECT event_id, rating, timestamp
+                            FROM UserRating
+                            WHERE user_id = '{0}'
+                        """.format(user_id)
+            self.controller.execute(sql_command)
 
-        ratings = self.controller.fetchall()
-        self.dbdeconnect()
+            ratings = self.controller.fetchall()
+            self.dbdeconnect()
         return ratings
 
     def get_unrated_events(self, user_id):
@@ -106,19 +110,20 @@ class UserRatingManager:
             This is done to create the rating events page
             So the user can rate events he has yet not rated!
         """
-        self.dbconnect()
-        sql_command = """
-                        SELECT event_id
-                        FROM Events
-                        WHERE event_id NOT IN(
-                        SELECT event_id FROM UserRating
-                        )
-                    """.format(user_id)
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                            SELECT event_id
+                            FROM Events
+                            WHERE event_id NOT IN(
+                            SELECT event_id FROM UserRating
+                            )
+                        """.format(user_id)
 
-        self.controller.execute(sql_command)
+            self.controller.execute(sql_command)
 
-        ids = [x[0] for x in self.controller.fetchall()]
-        self.dbdeconnect()
+            ids = [x[0] for x in self.controller.fetchall()]
+            self.dbdeconnect()
         return ids
 
 
@@ -128,17 +133,18 @@ class UserRatingManager:
             Just checking the database!
             Returns everything in it
         """
-        self.dbconnect()
-        sql_command = """
-                    SELECT *
-                    FROM UserRating
-                """
-        self.controller.execute(sql_command)
-        print('check_database')
-        result = self.controller.fetchall()
-        # for col in result:
-        #     print(col)
-        self.dbdeconnect()
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                        SELECT *
+                        FROM UserRating
+                    """
+            self.controller.execute(sql_command)
+            print('check_database')
+            result = self.controller.fetchall()
+            # for col in result:
+            #     print(col)
+            self.dbdeconnect()
         return result
 
     def delete_ratings_table(self):
@@ -146,31 +152,33 @@ class UserRatingManager:
             Created for debuging
             Deletes the data in the user ratings!
         """
-        self.dbconnect()
-        sql_command = """
-                        DELETE FROM UserRating;
-                    """
-        self.controller.execute(sql_command)
-        self.connection.commit()
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                            DELETE FROM UserRating;
+                        """
+            self.controller.execute(sql_command)
+            self.connection.commit()
 
-        sql_command = """
-                        VACUUM;
-                    """
-        self.controller.execute(sql_command)
-        self.connection.commit()
-        self.dbdeconnect()
+            sql_command = """
+                            VACUUM;
+                        """
+            self.controller.execute(sql_command)
+            self.connection.commit()
+            self.dbdeconnect()
 
     def drop_table(self):
         """
             Created for debuging
             Drops the table!
         """
-        self.dbconnect()
-        sql_command = """
-                    DROP TABLE UserRating;
-                """
-        self.connection.execute(sql_command)
-        self.dbdeconnect()
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                        DROP TABLE UserRating;
+                    """
+            self.connection.execute(sql_command)
+            self.dbdeconnect()
 
 if __name__ == "__main__":
     userRatingManager = UserRatingManager()

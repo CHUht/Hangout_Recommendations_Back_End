@@ -11,6 +11,8 @@ import math
 def generate_user_recommendations(Events, user_ratings, user_id, Recommendations, time_decay = -8.23e-7):
 
 
+    print("Events recommended for user", user_id)
+
     """
         :param events: description of all events in the database send in the same order as returned from the sql file
         :param user_ratings: user ratings of the events on the format (user_id, event_id, rating)

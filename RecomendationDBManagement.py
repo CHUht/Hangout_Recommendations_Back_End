@@ -11,7 +11,7 @@ class RecomendationDBManager:
             We need to connect to the database
             and get the last id!
         """
-        pass
+        self.lock = Lock()
     def dbconnect(self):
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
@@ -26,16 +26,17 @@ class RecomendationDBManager:
             This function is used
         """
 
-        self.dbconnect()
-        sql_command = """
-                    INSERT INTO UserRecommendations(user_id, event_id, score)
-                    VALUES ( ? , ? , ?);
-                """
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                        INSERT INTO UserRecommendations(user_id, event_id, score)
+                        VALUES ( ? , ? , ?);
+                    """
 
-        values = (user_id, event_id, score)
-        self.controller.execute(sql_command, values)
-        self.connection.commit()
-        self.dbdeconnect()
+            values = (user_id, event_id, score)
+            self.controller.execute(sql_command, values)
+            self.connection.commit()
+            self.dbdeconnect()
 
     def remove_recommendation(self, user_id, event_id):
 
@@ -43,16 +44,17 @@ class RecomendationDBManager:
             This function removes a event rating made by the user to the database
         """
 
-        self.dbconnect()
-        sql_command = """
-                       DELETE FROM UserRating 
-                       WHERE UserRecommendations.user_id = '{0}'
-                       AND UserRecommendations.event_id = '{1}'
-                    """.format(user_id, event_id)
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                           DELETE FROM UserRating 
+                           WHERE UserRecommendations.user_id = '{0}'
+                           AND UserRecommendations.event_id = '{1}'
+                        """.format(user_id, event_id)
 
-        self.controller.execute(sql_command)
-        self.connection.commit()
-        self.dbdeconnect()
+            self.controller.execute(sql_command)
+            self.connection.commit()
+            self.dbdeconnect()
 
     def get_recommendations_for_user(self, user_id):
 
@@ -62,17 +64,19 @@ class RecomendationDBManager:
             This allows us to compute the recommendations
         """
 
-        self.dbconnect()
-        sql_command = """
-                        SELECT event_id, score
-                        FROM UserRecommendations
-                        WHERE user_id = '{0}'
-                        ORDER BY score
-                    """.format(user_id)
-        self.controller.execute(sql_command)
-        recommendations = self.controller.fetchall().copy()
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                            SELECT event_id, score
+                            FROM UserRecommendations
+                            WHERE user_id = '{0}'
+                            ORDER BY score
+                        """.format(user_id)
+            self.controller.execute(sql_command)
+            recommendations = self.controller.fetchall()
+            recommendations = list(recommendations)
 
-        self.dbdeconnect()
+            self.dbdeconnect()
 
         return recommendations
 
@@ -83,17 +87,18 @@ class RecomendationDBManager:
             Returns everything in it
         """
 
-        self.dbconnect()
-        sql_command = """
-                    SELECT *
-                    FROM UserRecommendations
-                """
-        self.controller.execute(sql_command)
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                        SELECT *
+                        FROM UserRecommendations
+                    """
+            self.controller.execute(sql_command)
 
-        request = self.controller.fetchall()
-        for col in request:
-            print(col)
-        self.dbdeconnect()
+            request = self.controller.fetchall()
+            for col in request:
+                print(col)
+            self.dbdeconnect()
 
     def delete_recommendations_from_user(self, user_id):
         """
@@ -101,15 +106,16 @@ class RecomendationDBManager:
             This is done to update the recommendations!
         """
 
-        self.dbconnect()
-        sql_command = """
-                        DELETE FROM UserRecommendations
-                        WHERE user_id = '{0}'
-                    """.format(user_id)
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                            DELETE FROM UserRecommendations
+                            WHERE user_id = '{0}'
+                        """.format(user_id)
 
-        self.controller.execute(sql_command)
-        self.connection.commit()
-        self.dbdeconnect()
+            self.controller.execute(sql_command)
+            self.connection.commit()
+            self.dbdeconnect()
 
     def delete_recommendations_table(self):
         """
@@ -117,19 +123,20 @@ class RecomendationDBManager:
             Deletes the data in the user recommendations!
         """
 
-        self.dbconnect()
-        sql_command = """
-                        DELETE FROM UserRecommendations;
-                    """
-        self.controller.execute(sql_command)
-        self.connection.commit()
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                            DELETE FROM UserRecommendations;
+                        """
+            self.controller.execute(sql_command)
+            self.connection.commit()
 
-        sql_command = """
-                        VACUUM;
-                    """
-        self.controller.execute(sql_command)
-        self.connection.commit()
-        self.dbdeconnect()
+            sql_command = """
+                            VACUUM;
+                        """
+            self.controller.execute(sql_command)
+            self.connection.commit()
+            self.dbdeconnect()
 
     def drop_table(self):
         """
@@ -137,12 +144,13 @@ class RecomendationDBManager:
             Drops the table!
         """
 
-        self.dbconnect()
-        sql_command = """
-                    DROP TABLE UserRecommendations;
-                """
-        self.connection.execute(sql_command)
-        self.dbdeconnect()
+        with self.lock:
+            self.dbconnect()
+            sql_command = """
+                        DROP TABLE UserRecommendations;
+                    """
+            self.connection.execute(sql_command)
+            self.dbdeconnect()
 
 if __name__ == "__main__":
 
