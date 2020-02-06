@@ -177,7 +177,9 @@ def get_random_event():
             abort(404)
     # else, recommendations will be made for the online user.
     else:
-        rcmd_event_id = rcmd_manager.get_recommendations_for_user(read_user_header(request.headers))
+        user = read_user_header(request.headers)
+        # requests.get(url_root + url_api + '/ComputeRecommendations?passkey=fafa&user_id=' + str(user))
+        rcmd_event_id = rcmd_manager.get_recommendations_for_user(user)
         rdm_event = []
         for event in rcmd_event_id:
             if event[0] in event_manager.retrieve_event_ids():
@@ -406,7 +408,7 @@ def user_signup():
         else:
             user_manager.create_new_user(
                 rj['uname'], rj['pword'], rj['email'])
-        send_email(rj['email'], 'Thank you for your subscription')
+        send_email(rj['email'], 'Thank you for your subscription !\nVisite our web site now!')
         user = {
             'uname': rj['uname']
         }
@@ -466,7 +468,7 @@ def user_post_email():
         return jsonify({'sending_state': False,
                         'description': 'no current user uses this email'}), 201
     captcha = aes_cipher.decrypt(request.json['captcha'])
-    send_email(email, captcha)
+    send_email(email, 'Please enter the code bellow in the web site:\n'+str(captcha))
     return jsonify({'sending_state': True, 'description': 'email sent'}), 201
 
 
@@ -481,7 +483,7 @@ def send_email(email, mail_content):
     receivers = [email]
 
     # Set the sender, receiver, text, title of the mail
-    message = MIMEText('EMAIL SENDING TEST: ' + mail_content, 'plain', 'utf-8')
+    message = MIMEText(mail_content, 'plain', 'utf-8')
     message['From'] = Header("ParisHangOut", 'utf-8')
     message['To'] = Header(email, 'utf-8')
     message['Subject'] = Header('Email from Paris Hang Out Website', 'utf-8')

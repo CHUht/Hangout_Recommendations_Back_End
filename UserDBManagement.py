@@ -306,7 +306,7 @@ if __name__ == "__main__":
     print(userDBManager.check_database())
     # exit()
     # userDBManager.modify_password('jiahao.lu@student-cs.fr', 'newpw')
-    print(userDBManager.return_user_data('adnaneh'))
+    # print(userDBManager.return_user_data('adnaneh'))
     # email = 'lujiahao8146@gmail.com'
     # print(userDBManager.return_user_data_by_email(email))
     # print(userDBManager.email_authentication(email,'nopw'))
