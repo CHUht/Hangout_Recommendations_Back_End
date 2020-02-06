@@ -16,6 +16,7 @@ All are prepared, just run the `BackAPITest.py` to start the back end webservice
 
 ### Database management
 
+You can also directely visit the manipulate the database using the `*management.py` scripts. All methods in it are already well commented and we've also prepared some test case for you.
 
 
 ## License 
