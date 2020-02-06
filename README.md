@@ -2,7 +2,7 @@
 This project is part of the Hangout Recommendation project of Atelier Development. It’s named as “back end” since this part is meanly the code for constructing the web server.
 
 ## Installation
-To get started locally, follow these instructions:
+For installation, follow these instructions:
 
 1. Clone to your local computer using `git`
 1. Start a terminal in the project folder
