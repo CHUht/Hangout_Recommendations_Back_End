@@ -66,7 +66,8 @@ def create_databases():
 
     att3 = {'user_id': 'INTEGER',
                 'event_id': 'INTEGER',
-                'rating': 'INTEGER'}
+                'rating': 'INTEGER',
+                'timestamp': 'INTEGER'}
     databases.append(('UserRating',att3))
 
     att4 = {'user_id': 'INTEGER',
