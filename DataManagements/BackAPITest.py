@@ -1,13 +1,13 @@
-from flask import Flask, render_template, jsonify, abort, redirect
-from flask import request, url_for
+from flask import Flask, render_template, jsonify, abort
+from flask import request
 from flask_cors import CORS, cross_origin
-from EventDBManagement import *
-from UserDBManagement import *
-from RecomendationDBManagement import *
-from UserCatesDBManagement import *
+from DataManagements.EventDBManagement import *
+from DataManagements.UserDBManagement import *
+from DataManagements.RecomendationDBManagement import *
+from DataManagements.UserCatesDBManagement import *
 from geopy.geocoders import Nominatim
 from validate_email import validate_email
-from BackendAPIStaticList import *
+from DataManagements.BackendAPIStaticList import *
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header

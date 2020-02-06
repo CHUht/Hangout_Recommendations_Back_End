@@ -3,7 +3,7 @@ import sqlite3
 class CreatDataBase:
     def __init__(self, table_name):
         self.table_name = table_name
-        self._connection = sqlite3.connect('../Database.db')
+        self._connection = sqlite3.connect('./Database.db')
 
         # cursor
         self._cursor = self._connection.cursor()

@@ -1,5 +1,5 @@
 import sqlite3
-from BackendAPIStaticList import singleton
+from DataManagements.BackendAPIStaticList import singleton
 
 @singleton
 class RecomendationDBManager:

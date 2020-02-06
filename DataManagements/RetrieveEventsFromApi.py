@@ -1,7 +1,7 @@
 from urllib import request
 from geopy.geocoders import Nominatim
 import json
-from EventDBManagement import EventsDBManager
+from DataManagements.EventDBManagement import EventsDBManager
 import re
 
 

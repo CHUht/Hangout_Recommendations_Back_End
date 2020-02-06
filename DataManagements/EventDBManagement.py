@@ -3,8 +3,8 @@ import re
 from random import choice
 from time import *
 import datetime
-from BackendAPIStaticList import *
-from threading import Lock
+from DataManagements.BackendAPIStaticList import *
+
 
 @singleton
 class EventsDBManager:
@@ -100,6 +100,9 @@ class EventsDBManager:
                  'latitude': query_result[0][17], 'longitude': query_result[0][18], 'occurrences':query_result[0][19],
                  'large_category':query_result[0][20],'small_category':query_result[0][21]}
 
+        for key,value in event.items():
+            if value == 'NULL':
+                event[key] = 'no information'
         return event
 
     def return_several_diff_events(self,number_of_events = 10):
@@ -472,8 +475,8 @@ if __name__ == "__main__":
     # print(eventsDBManager.check_database())
     # print(eventsDBManager.number_of_events())
     # print(eventsDBManager.get_large_categoty(2270))
-    diff_events = eventsDBManager.return_several_events_of_a_cate(1)
-    print(len(diff_events))
+    # diff_events = eventsDBManager.return_several_events_of_a_cate(1)
+    # print(len(diff_events))
     # print(eventsDBManager.get_event_with_nearest(99746))
     # print(eventsDBManager.return_several_events_of_a_cate(2))
     # result = eventsDBManager.search_key_words('Mange')

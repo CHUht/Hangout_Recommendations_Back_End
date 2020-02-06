@@ -1,6 +1,6 @@
 import sqlite3
-from BackendAPIStaticList import singleton
-from BackendAPIStaticList import cate_map
+from DataManagements.BackendAPIStaticList import singleton
+from DataManagements.BackendAPIStaticList import cate_map
 
 @singleton
 class UserCatesManager:

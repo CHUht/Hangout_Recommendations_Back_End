@@ -1,9 +1,11 @@
 import sqlite3
-from BackendAPIStaticList import singleton
+from DataManagements.UserRatingDBManagement import UserRatingManager
+from DataManagements.BackendAPIStaticList import singleton
 
 @singleton
-class UserRatingManager:
+class UserLikeManager:
     def __init__(self):
+
         """
             Here we start all the points necessary to start this class
             We need to connect to the database
@@ -18,107 +20,86 @@ class UserRatingManager:
     def dbdeconnect(self):
         self.connection.close()
 
-    def add_rating(self, user_id, event_id, rating):
+    def add_like(self, user_id, event_id):
         """
-            This function adds a event rating made by the user to the database
+            This function adds an event like made by the user to the database
         """
-        self.dbconnect()
-        if type(user_id) != int or type(event_id) != int or type(rating) != int:
+        if type(user_id) != int or type(event_id) != int:
             raise TypeError("Values must be integers")
         # to verify if this event for this user has already been rated. if yes, override it. else, insert it into database
+        self.dbconnect()
         sql_command = """
-                        SELECT user_id, event_id, rating
-                        FROM UserRating
+                        SELECT user_id, event_id
+                        FROM UserLike
                         WHERE user_id = '{0}'
                         AND event_id = '{1}'
                     """.format(user_id,event_id)
 
         self.controller.execute(sql_command)
-        existing_rating = self.controller.fetchall()
-        # print('existing_rating')
-        # print(existing_rating)
-        if len(existing_rating) == 0:
+        existing_event_like = self.controller.fetchall()
+        # print('existing_event_like')
+        # print(existing_event_like)
+        if len(existing_event_like) == 0:
             sql_command = """
-                        INSERT INTO UserRating(user_id, event_id, rating)
-                        VALUES ( ? , ? , ?);
+                        INSERT INTO UserLike(user_id, event_id)
+                        VALUES ( ? , ?);
                     """
 
-            values = (user_id, event_id, rating)
+            values = (user_id, event_id)
             self.controller.execute(sql_command, values)
             self.connection.commit()
-        else:
-            sql_command = """
-                        UPDATE UserRating SET rating = {0}
-                        WHERE user_id = '{1}'
-                        AND event_id = '{2}'
-                    """.format(rating,user_id,event_id)
-            self.controller.execute(sql_command)
-            self.connection.commit()
         self.dbdeconnect()
+        # if user likes one event, should rate it 5 points automatically
+        userRatingManager = UserRatingManager()
+        userRatingManager.add_rating(user_id,event_id,5)
 
-    def remove_rating(self, user_id, event_id):
+
+    def remove_like(self, user_id, event_id):
 
         """
-            This function removes a event rating made by the user to the database
+            This function removes an event like made by the user to the database
         """
-
         if type(user_id) != int or type(event_id) != int:
             raise TypeError("Values must be integers")
+
         self.dbconnect()
         sql_command = """
-                       DELETE FROM UserRating 
-                       WHERE UserRating.user_id = '{0}'
-                       AND UserRating.event_id = '{1}'
+                       DELETE FROM UserLike
+                       WHERE UserLike.user_id = '{0}'
+                       AND UserLike.event_id = '{1}'
                     """.format(user_id, event_id)
 
         self.controller.execute(sql_command)
         self.connection.commit()
         self.dbdeconnect()
 
-    def get_ratings_from_user(self, user_id):
+    def get_likes_id_from_user(self, user_id):
 
         """
-            This function returns all event ratings from a specific user
-            It returns it in the format [(event_id, rating), (event_id, rating) ..... ]
+            This function returns all event likes from a specific user
+            It returns it in the format [(event_id), (event_id) ..... ]
             This allows us to compute the recommendations
         """
+
         if type(user_id) != int:
             raise TypeError("User id must be an int")
-
         self.dbconnect()
         sql_command = """
-                        SELECT event_id, rating
-                        FROM UserRating
+                        SELECT event_id
+                        FROM UserLike
                         WHERE user_id = '{0}'
                     """.format(user_id)
         self.controller.execute(sql_command)
 
-        ratings = self.controller.fetchall()
+        likes = self.controller.fetchall()
         self.dbdeconnect()
-        return ratings
+        for i in range(len(likes)):
+            likes[i] = likes[i][0]
+        print(likes)
+#         return likes
 
-    def get_unrated_events(self, user_id):
-
-        """
-            This function returns a list of all unrated events
-            This is done to create the rating events page
-            So the user can rate events he has yet not rated!
-        """
-        self.dbconnect()
-        sql_command = """
-                        SELECT event_id
-                        FROM Events
-                        WHERE event_id NOT IN(
-                        SELECT event_id FROM UserRating
-                        )
-                    """.format(user_id)
-
-        self.controller.execute(sql_command)
-
-        ids = [x[0] for x in self.controller.fetchall()]
-        self.dbdeconnect()
-        return ids
-
+    def return_like_events_from_user(self,user_id):
+        self.get_likes_id_from_user()
 
     def check_database(self):
 
@@ -129,7 +110,7 @@ class UserRatingManager:
         self.dbconnect()
         sql_command = """
                     SELECT *
-                    FROM UserRating
+                    FROM UserLike
                 """
         self.controller.execute(sql_command)
         print('check_database')
@@ -139,14 +120,14 @@ class UserRatingManager:
         self.dbdeconnect()
         return result
 
-    def delete_ratings_table(self):
+    def delete_userlike_table(self):
         """
             Created for debuging
             Deletes the data in the user ratings!
         """
         self.dbconnect()
         sql_command = """
-                        DELETE FROM UserRating;
+                        DELETE FROM UserLike;
                     """
         self.controller.execute(sql_command)
         self.connection.commit()
@@ -165,17 +146,16 @@ class UserRatingManager:
         """
         self.dbconnect()
         sql_command = """
-                    DROP TABLE UserRating;
+                    DROP TABLE UserLike;
                 """
         self.connection.execute(sql_command)
         self.dbdeconnect()
 
 if __name__ == "__main__":
-    userRatingManager = UserRatingManager()
-    # print(userRatingManager.check_database())
-    # userRatingManager.add_rating(0,0,1)
-    # userRatingManager.add_rating(0,1,2)
-    # userRatingManager.add_rating(0,2,5)
-    # print(userRatingManager.get_ratings_from_user(0))
-    # userRatingManager.delete_ratings_table()
-    # userRatingManager.drop_table()
+
+    userLikeManager = UserLikeManager()
+    # print(userLikeManager.check_database())
+    # userLikeManager.drop_table()
+    userLikeManager.add_like(1,2)
+    userLikeManager.add_like(2,3)
+    userLikeManager.get_likes_id_from_user(1)

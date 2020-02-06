@@ -1,6 +1,5 @@
-from CreatingDBs.CreateDB import *
-from RetrieveEventsFromApi import *
-from EventDBManagement import *
+from DataManagements.CreateDB import *
+from DataManagements.RetrieveEventsFromApi import *
 
 if __name__ == "__main__":
     # eventsDBManager = EventsDBManager()

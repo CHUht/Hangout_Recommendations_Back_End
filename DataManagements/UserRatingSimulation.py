@@ -1,7 +1,7 @@
-from EventDBManagement import EventsDBManager
-from UserRatingDBManagement import UserRatingManager
-from UserDBManagement import UserDBManager
-from BackendAPIStaticList import *
+from DataManagements.EventDBManagement import EventsDBManager
+from DataManagements.UserRatingDBManagement import UserRatingManager
+from DataManagements.UserDBManagement import UserDBManager
+from DataManagements.BackendAPIStaticList import *
 from random import choice,randint
 
 @singleton
