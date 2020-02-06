@@ -1,5 +1,7 @@
 # HangoutRecommendations -- Back end
-This project is part of the Hangout Recommendation project of Atelier Development. It’s named as “back end” since this part is meanly the code for constructing the web server.
+This project is part of the Hangout Recommendation project of Atelier Development. It’s named as “back end” since this part is meanly the code for constructing the web server. The "back end" project can be found  [here](https://github.com/CHUht/Hangout_Recommendations_Front_End/edit/master/README.md).
+
+![Architecture_backend](https://github.com/CHUht/Hangout_Recommendations_Back_End/blob/master/others/architecture_backend.jpg)
 
 ## Installation
 For installation, follow these instructions:
@@ -12,7 +14,11 @@ For installation, follow these instructions:
 
 ### Back end webservices
 
-All are prepared, just run the `BackAPITest.py` to start the back end webservices
+All are prepared, just run the `BackAPITest.py` to start the back end webservices, here is an example of the result:
+
+![backend_output](https://github.com/CHUht/Hangout_Recommendations_Back_End/blob/master/others/backend_output.jpg)
+
+With this IP address, you can visit the webservice using front end code
 
 ### Database management
 
