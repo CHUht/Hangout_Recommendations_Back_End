@@ -6,15 +6,14 @@ from UserDBManagement import *
 from RecomendationDBManagement import *
 from UserRatingDBManagement import *
 from UserCatesDBManagement import *
-from RecommendEvents import generate_user_recommendations
+from DataManagements.RecommendEvents import generate_user_recommendations
 from BackendAPIStaticList import *
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
-import re
 from validate_email import validate_email
 import time
-from threading import Thread, Lock
+from threading import Thread
 import requests
 
 
