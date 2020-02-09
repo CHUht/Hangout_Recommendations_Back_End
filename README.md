@@ -14,7 +14,7 @@ For installation, follow these instructions:
 
 ### Back end webservices
 
-All are prepared, just run the `BackAPITest.py` to start the back end webservices, here is an example of the result:
+All are prepared, just run the [BackAPITest.py](https://github.com/CHUht/Hangout_Recommendations_Back_End/blob/master/DataManagements/BackAPITest.py) to start the back end webservices, here is an example of the result:
 
 ![backend_output](https://github.com/CHUht/Hangout_Recommendations_Back_End/blob/master/others/backend_output.jpg)
 
@@ -22,7 +22,7 @@ With this IP address, you can visit the webservice using front end code
 
 ### Database management
 
-You can also directely visit the manipulate the database using the `*management.py` scripts in database_management??? folder. All methods in it are already well commented and we've also prepared some test case for you.
+You can also directely visit the manipulate the database using the `*management.py` scripts [DataManagements](https://github.com/CHUht/Hangout_Recommendations_Back_End/tree/master/DataManagements). All methods in it are already well commented and we've also prepared some test case for you.
 
 
 ## License 
