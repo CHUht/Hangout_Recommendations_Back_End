@@ -1,10 +1,6 @@
 import socket
-import sys
 from Crypto.Cipher import AES
-from Crypto import Random
-from binascii import b2a_hex, a2b_hex
 import base64
-from hashlib import md5
 
 # this document contains statistic useful common tools imported by other documents.
 # Mapping of category index to category name

@@ -1,13 +1,13 @@
 from flask import Flask, render_template, jsonify, abort
 from flask import request
 from flask_cors import CORS, cross_origin
-from EventDBManagement import *
-from UserDBManagement import *
-from RecomendationDBManagement import *
-from UserRatingDBManagement import *
-from UserCatesDBManagement import *
+from DataManagements.EventDBManagement import *
+from DataManagements.UserDBManagement import *
+from DataManagements.RecomendationDBManagement import *
+from DataManagements.UserRatingDBManagement import *
+from DataManagements.UserCatesDBManagement import *
 from DataManagements.RecommendEvents import generate_user_recommendations
-from BackendAPIStaticList import *
+from DataManagements.BackendAPIStaticList import *
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header

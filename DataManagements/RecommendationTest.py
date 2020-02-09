@@ -3,9 +3,7 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 import nltk
 from gensim import corpora, models, similarities
-import gensim
 import numpy as np
-import matplotlib.pyplot as plt
 
 movies = pd.read_csv("wiki_movie_plots_deduped.csv")
 

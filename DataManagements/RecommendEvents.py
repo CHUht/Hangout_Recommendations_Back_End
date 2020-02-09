@@ -1,9 +1,9 @@
 import pickle as pkl
 import numpy as np
 import datetime as dt
-from UserRatingDBManagement import UserRatingManager
-from EventDBManagement import EventsDBManager
-from RecomendationDBManagement import RecomendationDBManager
+from DataManagements.UserRatingDBManagement import UserRatingManager
+from DataManagements.EventDBManagement import EventsDBManager
+from DataManagements.RecomendationDBManagement import RecomendationDBManager
 import time
 import math
 
