@@ -8,16 +8,24 @@ class UserCatesManager:
         pass
 
     def dbconnect(self):
+        """
+        connect to the database
+        :return: None
+        """
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
 
     def dbdeconnect(self):
+        """
+        deconnecct from the database
+        :return:None
+        """
         self.connection.close()
 
     def get_all_cates(self):
         """
         this function returns a list of strings, all kinds of categories
-        :return:
+        :return: list of all categories
         """
         to_return = list(cate_map.values())
         return to_return

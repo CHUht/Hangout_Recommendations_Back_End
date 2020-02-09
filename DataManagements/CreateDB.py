@@ -1,5 +1,6 @@
 import sqlite3
 
+# this document contains a class for creation of all tables saved in one database called Database.db
 class CreatDataBase:
     def __init__(self, table_name):
         self.table_name = table_name

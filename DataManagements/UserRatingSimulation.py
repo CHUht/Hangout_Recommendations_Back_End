@@ -6,11 +6,23 @@ from random import choice,randint
 
 @singleton
 class UserRatingSimulator():
+    """
+    this class is created to simulate a senario that several users like several events in certain categories
+    """
     def __init__(self):
+        """
+        initialisation of three table in the database
+        """
         self.userRatingManager = UserRatingManager()
         self.eventDBManager = EventsDBManager()
         self.userDBManager= UserDBManager()
     def simulate_rating(self,number_of_users,number_of_events_each):
+        """
+        this function simulates
+        :param number_of_users: number of users
+        :param number_of_events_each: number of events for each user
+        :return: None
+        """
         for i in range(number_of_users):
             self.userDBManager.create_new_user('SimuUser'+str(i),'nopsw','i@gmail.com')
             all_large_cates = list(self.eventDBManager.get_catagories_statistics().keys())
@@ -30,9 +42,6 @@ class UserRatingSimulator():
             user_id = self.userDBManager.return_user_id('SimuUser'+str(i))
             for event in rating_events:
                 self.userRatingManager.add_rating(user_id,event['event_id'],randint(1,5))
-
-
-
 
 if __name__ == "__main__":
     userRatingSimulator = UserRatingSimulator()

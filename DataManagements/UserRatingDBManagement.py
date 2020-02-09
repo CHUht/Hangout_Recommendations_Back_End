@@ -7,22 +7,35 @@ from threading import Lock
 class UserRatingManager:
     def __init__(self):
         """
-            Here we start all the points necessary to start this class
-            We need to connect to the database
-            and get the last id!
+        Here we start all the points necessary to start this class
+        We need to create a global lock for the whole class
         """
         self.lock = Lock()
 
     def dbconnect(self):
+        """
+        connection to the db
+        :return: None
+        """
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
 
     def dbdeconnect(self):
+        """
+        Here we start all the points necessary to start this class
+        We need to create a global lock for the whole class
+        :return: None
+        """
         self.connection.close()
 
     def add_rating(self, user_id, event_id, rating, timestamp):
         """
-            This function adds a event rating made by the user to the database
+        This function adds a event rating made by the user to the database
+        :param user_id: user id
+        :param event_id: event id
+        :param rating: rating of the event of the given user
+        :param timestamp: time stamp of the record
+        :return: None
         """
         with self.lock:
             self.dbconnect()
@@ -35,17 +48,13 @@ class UserRatingManager:
                             WHERE user_id = '{0}'
                             AND event_id = '{1}'
                         """.format(user_id,event_id)
-
             self.controller.execute(sql_command)
             existing_rating = self.controller.fetchall()
-            # print('existing_rating')
-            # print(existing_rating)
             if len(existing_rating) == 0:
                 sql_command = """
                             INSERT INTO UserRating(user_id, event_id, rating, timestamp)
                             VALUES ( ? , ? , ?,  ?);
                         """
-
                 values = (user_id, event_id, rating, timestamp)
                 self.controller.execute(sql_command, values)
                 self.connection.commit()
@@ -62,11 +71,12 @@ class UserRatingManager:
         print("Rating added --- user:{0} --- event:{1}".format(user_id, event_id))
 
     def remove_rating(self, user_id, event_id):
-
         """
-            This function removes a event rating made by the user to the database
+        This function removes a event rating made by the user to the database
+        :param user_id: user id
+        :param event_id: event id
+        :return: None
         """
-
         if type(user_id) != int or type(event_id) != int:
             raise TypeError("Values must be integers")
         with self.lock:
@@ -82,15 +92,15 @@ class UserRatingManager:
             self.dbdeconnect()
 
     def get_ratings_from_user(self, user_id):
-
         """
-            This function returns all event ratings from a specific user
-            It returns it in the format [(event_id, rating), (event_id, rating) ..... ]
-            This allows us to compute the recommendations
+        This function returns all event ratings from a specific user
+        It returns it in the format [(event_id, rating), (event_id, rating) ..... ]
+        This allows us to compute the recommendations
+        :param user_id: user id
+        :return: a list of all ratings in given format
         """
         if type(user_id) != int:
             raise TypeError("User id must be an int")
-
         with self.lock:
             self.dbconnect()
             sql_command = """
@@ -99,17 +109,17 @@ class UserRatingManager:
                             WHERE user_id = '{0}'
                         """.format(user_id)
             self.controller.execute(sql_command)
-
             ratings = self.controller.fetchall()
             self.dbdeconnect()
         return ratings
 
     def get_unrated_events(self, user_id):
-
         """
-            This function returns a list of all unrated events
-            This is done to create the rating events page
-            So the user can rate events he has yet not rated!
+        This function returns a list of all unrated events
+        This is done to create the rating events page
+        So the user can rate events he has yet not rated!
+        :param user_id: user id
+        :return: a list of unrated events
         """
         with self.lock:
             self.dbconnect()
@@ -120,19 +130,16 @@ class UserRatingManager:
                             SELECT event_id FROM UserRating
                             )
                         """.format(user_id)
-
             self.controller.execute(sql_command)
-
             ids = [x[0] for x in self.controller.fetchall()]
             self.dbdeconnect()
         return ids
 
-
     def check_database(self):
-
         """
-            Just checking the database!
-            Returns everything in it
+        Just checking the database!
+        Returns everything in it
+        :return: return everything in the database
         """
         with self.lock:
             self.dbconnect()
@@ -143,15 +150,14 @@ class UserRatingManager:
             self.controller.execute(sql_command)
             print('check_database')
             result = self.controller.fetchall()
-            # for col in result:
-            #     print(col)
             self.dbdeconnect()
         return result
 
     def delete_ratings_table(self):
         """
-            Created for debuging
-            Deletes the data in the user ratings!
+        Created for debuging
+        Deletes the data in the user ratings!
+        :return: None
         """
         with self.lock:
             self.dbconnect()
@@ -170,8 +176,9 @@ class UserRatingManager:
 
     def drop_table(self):
         """
-            Created for debuging
-            Drops the table!
+        Created for debuging
+        Drops the table!
+        :return: None
         """
         with self.lock:
             self.dbconnect()

@@ -7,25 +7,32 @@ from threading import Lock
 class UserDBManager:
     def __init__(self):
         """
-            Here we start all the points necessary to start this class
-            We need to connect to the database
-            and get the last id!
+        Here we start all the points necessary to start this class
+        We need to get the last id and create a global lock for the whole class
         """
         self.lock = Lock()
         self.set_last_id()
 
     def dbconnect(self):
+        """
+        to connect to the database
+        :return: None
+        """
         self.connection = sqlite3.connect("Database.db", check_same_thread=False)
         self.controller = self.connection.cursor()
 
     def dbdeconnect(self):
+        """
+        to deconnect to the database
+        :return: None
+        """
         self.connection.close()
 
     def set_last_id(self):
-
         """
-            In this function we find the last id on the database
-            this is done since we need to assign a new
+        In this function we find the last id on the database
+        this is done since we need to assign a new
+        :return: None
         """
         with self.lock:
             self.dbconnect()
@@ -36,20 +43,22 @@ class UserDBManager:
             self.controller.execute(sql_command)
             all_ids = self.controller.fetchall()
             self.dbdeconnect()
-        # print('all_ids')
-        # print(all_ids)
         if len(all_ids) == 0:
             self.last_id = -1
         else:
             self.last_id = all_ids[-1][0]
 
-
     def create_new_user(self, uname, psw, email ,address = None, city = 'Paris'):
-
         """
-            This function adds a new user to the user db table!
-            It takes the given username and password to create it
-            We assume the check for unique usernames is done at the front end level
+        This function adds a new user to the user db table!
+        It takes the given username and password to create it
+        We assume the check for unique usernames is done at the front end level
+        :param uname: user name in string
+        :param psw: password in string
+        :param email: email in string
+        :param address: adress in string
+        :param city: city in string
+        :return: None
         """
         with self.lock:
             self.dbconnect()
@@ -58,7 +67,6 @@ class UserDBManager:
                 INSERT INTO Users(user_id, uname, pword, email, address, city)
                 VALUES ( ?, ?, ?, ?, ?, ? );
             """
-
             values = (self.last_id, uname, psw, email, address, city)
             self.controller.execute(sql_command, values)
             self.connection.commit()
@@ -66,13 +74,13 @@ class UserDBManager:
         print('DB message: user {0} --- user id {1} --- created by {2}'
               .format(uname, self.last_id, email))
 
-
     def return_user_data(self, uname):
-
         """
-            This function must return the user profile based on the username
-            It needs other database classes to work with it!
-            For now just return the basic stuff
+        This function must return the user profile based on the username
+        It needs other database classes to work with it!
+        For now just return the basic stuff
+        :param uname: user name
+        :return: user data with input user name
         """
         with self.lock:
             self.dbconnect()
@@ -91,19 +99,13 @@ class UserDBManager:
         return result
 
     def return_user_data_by_email(self, email:str):
-
         """
-            This function must return the user profile based on the email
-            It needs other database classes to work with it!
-            For now just return the basic stuff
+        =Ths function must return the user profile based on the email
+        It needs other database classes to work with it!
+        For now just return the basic stuff
+        :param email: email in string
+        :return: user data with input email
         """
-        # self.dbconnect()
-        # sql_command = """
-        #             SELECT *
-        #             FROM Users
-        #         """
-        # self.controller.execute(sql_command)
-        # data = self.controller.fetchall()
         all_users = self.check_database()
         result = []
         for user in all_users:
@@ -112,11 +114,12 @@ class UserDBManager:
         return result
 
     def return_user_id(self, uname):
-
         """
-            This function takes in a username and returns a user id!
-            The user names must all be unique
-            We check the creation of usernames to avoid duplicates
+        This function takes in a username and returns a user id!
+        The user names must all be unique
+        We check the creation of usernames to avoid duplicates
+        :param uname: user name
+        :return: user id with input user name
         """
         with self.lock:
             self.dbconnect()
@@ -128,20 +131,17 @@ class UserDBManager:
             self.controller.execute(sql_command)
             user_id = self.controller.fetchall()
             self.dbdeconnect()
-
         if(len(user_id) != 1):
             raise Exception("Fatal error occurred two ids for one username")
-
         return user_id[0][0]
 
-
-
     def return_user_by_id(self, user_id):
-
         """
-            This function takes in a user id and returns a user!
-            The user id must all be unique
-            We check the creation of user id to avoid duplicates
+        This function takes in a user id and returns a user!
+        The user id must all be unique
+        We check the creation of user id to avoid duplicates
+        :param user_id: user id
+        :return: user data with input user id
         """
         with self.lock:
             self.dbconnect()
@@ -157,14 +157,13 @@ class UserDBManager:
             return []
         if (len(users) > 1):
             raise Exception("Fatal error occurred two users for one user id")
-
         return users[0]
 
     def return_usernames(self):
-
         """
-            This function returns a list with all usernames
-            This is done in the server level to check if there are any matching usernames
+        This function returns a list with all usernames
+        This is done in the server level to check if there are any matching usernames
+        :return: list of all usernames
         """
         with self.lock:
             self.dbconnect()
@@ -180,10 +179,10 @@ class UserDBManager:
         return unames
 
     def return_emails(self):
-
         """
-            This function returns the list of emails from all the users
-            This is done to not have repeated emails on the database
+        This function returns the list of emails from all the users
+        This is done to not have repeated emails on the database
+        :return: a list of all emails
         """
         with self.lock:
             self.dbconnect()
@@ -200,8 +199,11 @@ class UserDBManager:
 
     def user_authentication(self, uname, password):
         """
-            This function returns true if the username matches the password
-            False otherwise
+        This function returns true if the username matches the password
+        False otherwise
+        :param uname: user name
+        :param password: password
+        :return: boolean value for authentification
         """
         with self.lock:
             self.dbconnect()
@@ -220,8 +222,11 @@ class UserDBManager:
 
     def email_authentication(self, email, password):
         """
-            This function returns true if the username matches the password
-            False otherwise
+        This function returns true if the username matches the password
+        False otherwise
+        :param email: email
+        :param password: password
+        :return: boolean for authentification
         """
         check_user = self.return_user_data_by_email(email)
         if len(check_user) == 0:
@@ -235,7 +240,10 @@ class UserDBManager:
 
     def modify_password(self, mail, newpw):
         """
-                    This function modify the password for the user
+        This function modify the password for the user
+        :param mail: email
+        :param newpw: new password
+        :return: None
         """
         with self.lock:
             self.dbconnect()
@@ -248,10 +256,11 @@ class UserDBManager:
             self.dbdeconnect()
         print('updated user: ', self.return_user_data_by_email(mail))
 
-
-
     def check_database(self):
-        # Returns everything in it
+        """
+        Returns everything in it
+        :return: a list of all things
+        """
         with self.lock:
             self.dbconnect()
             sql_command = """
@@ -259,19 +268,15 @@ class UserDBManager:
                         FROM Users
                     """
             self.controller.execute(sql_command)
-
-            # print('checke_database')
-
-            # for col in self.controller.fetchall():
-            #     print(col)
             result = self.controller.fetchall()
             self.dbdeconnect()
         return result
 
     def delete_user_table(self):
         """
-            Created for debuging
-            Deletes the data in the user table!
+        Created for debuging
+        Deletes the data in the user table!
+        :return: None
         """
         with self.lock:
             self.dbconnect()
@@ -290,8 +295,9 @@ class UserDBManager:
 
     def drop_table(self):
         """
-            Created for debuging
-            Drops the table!
+        Created for debuging
+        Drop the user table!
+        :return: None
         """
         with self.lock:
             self.dbconnect()

@@ -11,14 +11,27 @@ import re
 import numpy as np
 import pickle as pkl
 
+"""
+this document fetch data from remote database with given API, and store them into our local database after cleaning
+"""
 
 def cleanhtml(raw_html):
+    """
+    to clean raw html
+    :param raw_html: raw html
+    :return: cleaned text
+    """
     cleanr = re.compile('<.*?>')
     cleantext = re.sub(cleanr, '', raw_html)
     return cleantext
 
 
 def get_data_from_API(url):
+    """
+    get data with url
+    :param url: url for request
+    :return: raw data gotten
+    """
     with request.urlopen(url) as f:
         data = f.read()
         print('Status:', f.status, f.reason)
@@ -28,8 +41,12 @@ def get_data_from_API(url):
         print('Data:',data_decoded)
     return data_decoded
 
-
 def get_data_from_API_with_head(url):
+    """
+    get data with url with a good head
+    :param url: trl for request
+    :return: raw data gotten
+    """
     req = request.Request(url)
     req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0')
     with request.urlopen(req) as f:
@@ -44,12 +61,18 @@ def get_data_from_API_with_head(url):
 
 
 def data_clean(raw_data,Events,geolocator):
+    """
+    to clean the raw gotten data and get a geolocator for each event
+    :param raw_data: raw data
+    :param Events: list of events
+    :param geolocator: geolocator created
+    :return: cleaned data
+    """
     events = raw_data['records']
     no_label_numbers = {}
     tag_numbers = {}
     i =0
     for event in events:
-
         cleaned_event = {}
         label_list = [('event_id','id'),('title','title'),('category','category'),('price','price_detail'),
                       ('description','description'),('link','access_link'),('telephone','contact_phone'),
@@ -57,37 +80,29 @@ def data_clean(raw_data,Events,geolocator):
                       ('address_zipcode','address_zipcode'),('date','date_description'),('date_end','date_end'),
                       ('contact_mail','contact_mail'),('facebook','contact_facebook'),('website','contact_url'),
                       ('cover_url','cover_url'),('occurrences','occurrences')]
-
         for a,b in label_list:
             try:
                 cleaned_event[a] = cleanhtml(event['fields'][b])
             except KeyError:
                 cleaned_event[a] = "NULL"
-
         try:
             location = geolocator.geocode(cleaned_event['address_street'] + "," + cleaned_event['address_city'])
         except:
             location = None
-
         if location is not None:
             cleaned_event['latitude'] = location.latitude
             cleaned_event['longitude'] = location.longitude
         else:
             cleaned_event['latitude'] = "NULL"
             cleaned_event['longitude'] = "NULL"
-
         # occurrence clean
         cleaned_event['occurrences'] += ';'
-
         #category clean
         match = re.match(r'(.*) -> (.*)',cleaned_event['category'])
         cleaned_event['large_category'] = match.group(1)
         cleaned_event['small_category'] = match.group(2)
-
-
         if (cleaned_event['event_id'] not in str(Events.events_ids)) \
                 and (cleaned_event['date'] != "NULL") and (cleaned_event['date_end'] != "NULL"):
-
             Events.add_event(cleaned_event['event_id'], cleaned_event['title'], cleaned_event['category'],
                              cleaned_event['price'], cleaned_event['description'], cleaned_event['link'],
                              cleaned_event['telephone'], cleaned_event['tags'], cleaned_event['address_street'],
@@ -96,15 +111,14 @@ def data_clean(raw_data,Events,geolocator):
                              cleaned_event['website'], cleaned_event['cover_url'], cleaned_event['latitude'],
                              cleaned_event['longitude'],cleaned_event['occurrences'],cleaned_event['large_category'],
                              cleaned_event['small_category'])
-            # print('cleaning ' + cleaned_event['event_id'] + ' not exists')
         i += 1
         print(i)
 
-
 def generate_similarity_matrix(Events):
-
     """
-        Start by retrieving all events from the database
+    Start by retrieving all events from the database
+    :param Events: events
+    :return: None
     """
     events = Events.return_all_events()
     events = [(event[0], event[4]) for event in events]
@@ -118,9 +132,6 @@ def generate_similarity_matrix(Events):
     for i,event in enumerate(events):
         id_to_index[event[0]] = i
         index_to_id[i] = event[0]
-
-
-
     """
         Declare the events as a pandas dataframe
     """
@@ -201,6 +212,10 @@ def generate_similarity_matrix(Events):
     exit()
 
 def download_and_clean():
+    """
+    function or download and clean data by calling all functions above
+    :return: None
+    """
 
     geolocator = Nominatim(user_agent="Hangout Recommendation")
     Events = EventsDBManager()
