@@ -22,7 +22,7 @@ With this IP address, you can visit the webservice using front end code
 
 ### Database management
 
-You can also directely visit the manipulate the database using the `*management.py` scripts [DataManagements](https://github.com/CHUht/Hangout_Recommendations_Back_End/tree/master/DataManagements). All methods in it are already well commented and we've also prepared some test case for you.
+You can also directely manipulate the database using the `*management.py` scripts [DataManagements](https://github.com/CHUht/Hangout_Recommendations_Back_End/tree/master/DataManagements). All methods in it are already well commented and we've also prepared some test case for you.
 
 
 ## License 
